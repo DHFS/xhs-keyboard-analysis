@@ -1,508 +1,821 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>小红书键盘评论｜购买决策分析</title>
+
 <style>
+
 /* ============================================================
-   DJI Analysis design language applied to the keyboard report
-   White canvas · one engineering blue · open sans tight tracking
-   square tiles · flat surfaces · charcoal footer
+
+   键盘购买决策报告 · 设计系统 v2
+
+   Design tokens → base → layout → components → responsive → print
+
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap');
+
 :root{
-  --blue:#0070d5;--blue-store:#0060ef;--blue-tint:#deeafd;--link:#1890ff;
-  --tier:#be4e04;--badge:#fa8c16;--error:#f5222d;
-  --canvas:#fff;--soft:#f7f9fa;--panel:#f6f8f9;--fog:#f5f5f5;--announce:#fafafa;
-  --footer:#272727;--footer-pill:#383838;--footer-divider:#414141;--footer-link:#b3b3b3;
-  --ink:#262626;--ink2:#595959;--ink3:#8c8c8c;--navink:#303233;--steel:#9fa3a6;
-  --hairline:#f0f0f0;--divider:#e8e8e8;--border:#d9d9d9;
-  --font:'Open Sans','Segoe UI','Microsoft YaHei',sans-serif;
-  --float:0 8px 16px rgba(0,0,0,.10);
+
+  /* Brand & semantic colors — tuned for WCAG AA body-text contrast */
+
+  --navy:#123039;--navy-2:#1b4a52;
+
+  --teal:#0f7663;--teal-600:#0b5e4f;--teal-soft:#e3f4ee;
+
+  --red:#b93b3b;--red-soft:#fceceb;
+
+  --amber:#8a5a0b;--amber-soft:#fff3d9;
+
+  --blue:#2c6289;
+
+  --ink:#15262d;--ink-2:#3d525a;--muted:#5c6f77;--muted-2:#7d8d94;
+
+  --line:#dbe4e3;--line-2:#e9efee;
+
+  --paper:#f5f7f6;--card:#fff;--surface:#eef3f2;
+
+  --fs-xs:11px;--fs-sm:12px;--fs-base:13px;--fs-md:15px;--fs-lg:18px;--fs-xl:22px;--fs-2xl:28px;--fs-3xl:38px;
+
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:20px;--s6:24px;--s8:32px;--s10:40px;--s12:48px;--s16:64px;
+
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-pill:999px;
+
+  --shadow-sm:0 1px 2px rgba(18,48,57,.05),0 2px 8px rgba(18,48,57,.03);
+
+  --shadow-md:0 4px 14px rgba(18,48,57,.06);
+
+  --shadow-lg:0 12px 35px rgba(18,48,57,.09);
+
+  --font:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:76px}
-body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:16px;font-weight:400;line-height:1.5;letter-spacing:-.32px;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-button,input,select{font-family:inherit}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-::selection{background:var(--blue-tint);color:var(--ink)}
-.wrap{max-width:1200px;margin:auto;padding:0 24px}
-.num,.numcell,.net-value,.metric .num,.sentiment{font-variant-numeric:tabular-nums}
 
-/* ---------- Nav: white bar, 64px ---------- */
-.topbar{position:sticky;top:0;z-index:20;background:var(--canvas);border-bottom:1px solid var(--divider)}
-.topbar-inner{display:flex;align-items:center;gap:28px;height:64px}
-.brandmark{font-size:14px;font-weight:600;letter-spacing:-.28px;color:var(--navink);white-space:nowrap}
-.nav{display:flex;gap:24px;font-size:14px;color:var(--ink2);overflow:auto;scrollbar-width:none;height:100%}
+*,*::before,*::after{box-sizing:border-box}
+
+html{scroll-behavior:smooth;scroll-padding-top:74px}
+
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.65;-webkit-font-smoothing:antialiased}
+
+a{color:inherit}
+
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:4px}
+
+::selection{background:var(--teal-soft);color:var(--navy)}
+
+.wrap{max-width:1240px;margin:auto;padding:0 var(--s6)}
+
+.num,.numcell,.net-value,.rank,.metric .num,.sentiment{font-variant-numeric:tabular-nums}
+
+
+
+/* ---------- Top bar ---------- */
+
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+
+.topbar-inner{display:flex;align-items:center;gap:var(--s5);min-height:60px}
+
+.brandmark{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:.05em;color:var(--navy);white-space:nowrap;font-size:13px}
+
+.brandmark::before{content:"";width:18px;height:18px;border-radius:5px;background:var(--teal);box-shadow:inset 0 0 0 3px rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.08)}
+
+.nav{display:flex;gap:var(--s4);font-size:var(--fs-sm);color:var(--muted);overflow:auto;scrollbar-width:none}
+
 .nav::-webkit-scrollbar{display:none}
-.nav a{display:flex;align-items:center;white-space:nowrap;border-bottom:2px solid transparent}
-.nav a:hover{color:var(--ink);border-bottom-color:var(--ink)}
-.progress{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--blue);transition:width .1s linear}
 
-/* ---------- Pills: the only action shape ---------- */
-.pill-primary{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 16px;border:0;border-radius:9999px;background:var(--blue);color:#fff;font-size:16px;cursor:pointer;white-space:nowrap}
-.pill-primary:hover{background:var(--blue-store)}
-.pill-outline{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 15px;border:1px solid var(--ink);border-radius:9999px;background:transparent;color:var(--ink);font-size:16px;cursor:pointer;white-space:nowrap}
-.pill-outline:hover{background:var(--ink);color:#fff}
-.pill-sm{height:32px;padding:0 16px;font-size:14px;border-radius:9999px}
-.pill-ghost{display:inline-flex;align-items:center;height:32px;padding:5px 16px;border:1px solid #fff;border-radius:64px;color:#fff;font-size:14px}
-.nav-action{margin-left:auto}
+.nav a{text-decoration:none;white-space:nowrap;padding:6px 2px;border-bottom:2px solid transparent;transition:color .18s,border-color .18s}
 
-/* ---------- Hero: clean white, rank eyebrow, compact type ---------- */
-.hero{padding:56px 0 40px;background:var(--canvas);border-bottom:1px solid var(--hairline)}
-.tier-eyebrow{color:var(--tier);font-size:12px;font-weight:400;letter-spacing:-.24px;line-height:1.33;text-transform:uppercase}
-.hero h1{font-size:40px;font-weight:600;line-height:1.2;letter-spacing:-1.2px;margin:14px 0 12px;max-width:860px}
-.hero-lede{font-size:16px;line-height:1.5;color:var(--ink2);max-width:760px;margin:0}
-.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-.hero-actions a{display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:9999px;font-size:16px}
-.hero-actions .primary{background:var(--blue);color:#fff}
-.hero-actions .primary:hover{background:var(--blue-store)}
-.hero-actions .outline{border:1px solid var(--ink);color:var(--ink)}
-.hero-actions .outline:hover{background:var(--ink);color:#fff}
-.hero-meta{margin-top:20px;font-size:12px;color:var(--ink3);letter-spacing:-.24px}
+.nav a:hover{color:var(--teal);border-color:var(--teal)}
 
-/* ---------- Metrics band: pale grey, four big calm numbers ---------- */
-.metrics-band{background:var(--soft);border-bottom:1px solid var(--hairline)}
-.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--divider)}
-.metric{background:var(--soft);padding:28px 20px}
-.metric .num{font-size:40px;font-weight:400;line-height:1.2;letter-spacing:-1.2px;color:var(--ink)}
-.metric .label{font-size:12px;line-height:1.33;letter-spacing:-.24px;color:var(--steel);margin-top:8px}
+.print-btn{margin-left:auto;border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);padding:8px 13px;cursor:pointer;color:var(--navy);white-space:nowrap;font-size:var(--fs-sm);font-weight:600;box-shadow:var(--shadow-sm);transition:all .18s}
+
+.print-btn:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-1px)}
+
+.progress{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:linear-gradient(90deg,var(--teal),#5cc0a8);transition:width .1s linear}
+
+
+
+/* ---------- Hero ---------- */
+
+.hero{background:linear-gradient(135deg,#123039 0%,#1b5558 58%,#1e6f62 100%);color:#fff;padding:52px 0 48px;position:relative;overflow:hidden}
+
+.hero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1px);background-size:22px 22px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 55%,#000);mask-image:linear-gradient(90deg,transparent,#000 55%,#000);opacity:.5;pointer-events:none}
+
+.hero::after{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(255,255,255,.12);border-radius:50%;right:-120px;top:-200px;box-shadow:0 0 0 70px rgba(255,255,255,.025),0 0 0 140px rgba(255,255,255,.02)}
+
+.hero .wrap{position:relative;z-index:1}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.14em;font-size:var(--fs-xs);color:#a9ddd0;font-weight:700}
+
+.eyebrow::before{content:"";width:18px;height:2px;background:#7fd3bf}
+
+.hero h1{font-size:var(--fs-3xl);line-height:1.24;margin:12px 0 14px;max-width:780px;letter-spacing:-.02em;font-weight:800}
+
+.hero-sub{max-width:820px;color:#d4e7e5;font-size:var(--fs-md);line-height:1.75}
+
+.hero-tags{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s6)}
+
+.hero-tag{border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.07);border-radius:var(--r-pill);padding:6px 13px;font-size:var(--fs-sm);color:#edf8f5}
+
+.snapshot{margin-top:var(--s5);font-size:var(--fs-xs);color:#aecbc8;font-variant-numeric:tabular-nums}
+
+
+
+/* ---------- Metrics ---------- */
+
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s3);margin-top:-24px;position:relative;z-index:2}
+
+.metric{background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s4) var(--s5);box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+
+.metric::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal);opacity:.75}
+
+.metric:last-child::before{background:var(--amber)}
+
+.metric .num{font-size:var(--fs-2xl);font-weight:800;color:var(--navy);line-height:1.2}
+
+.metric .label{font-size:var(--fs-sm);color:var(--muted);margin-top:6px}
+
+
 
 /* ---------- Sections ---------- */
-.section{padding-top:56px}
-.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
-.section h2{font-size:32px;font-weight:600;line-height:1.125;letter-spacing:-.96px;margin:8px 0 0}
-.section-desc{font-size:14px;line-height:1.43;letter-spacing:-.28px;color:var(--ink2);max-width:720px;margin:10px 0 0}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
-/* ---------- Flat tiles / cards: square corners, no shadow ---------- */
-.card{background:var(--canvas);border:1px solid var(--divider);border-radius:0}
-.pad{padding:24px}
-.pad h3{font-size:20px;font-weight:600;letter-spacing:-.6px;margin:0 0 16px}
-.muted{color:var(--ink2)}
-.small{font-size:12px;line-height:1.33;letter-spacing:-.24px}
-.cell-note{max-width:360px;min-width:230px;color:var(--ink2);font-size:12px;line-height:1.43;letter-spacing:-.24px}
-.coverage{max-width:250px;min-width:180px;font-size:12px;color:var(--ink2)}
+.section{padding:var(--s12) 0 0}
+
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:var(--s5);margin-bottom:var(--s5)}
+
+.section h2{font-size:var(--fs-xl);margin:0;color:var(--navy);line-height:1.35;letter-spacing:-.01em;font-weight:750}
+
+.section-desc{color:var(--muted);font-size:var(--fs-base);max-width:700px;margin:8px 0 0}
+
+.kicker{display:inline-block;font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--teal-600);background:var(--teal-soft);border-radius:var(--r-pill);padding:3px 10px;font-weight:800;margin-bottom:8px}
+
+
+
+/* ---------- Cards & common ---------- */
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);transition:box-shadow .2s,transform .2s}
+
+.card:hover{box-shadow:var(--shadow-md)}
+
+.pad{padding:var(--s5) var(--s6)}
+
+.pad h3{margin:0 0 var(--s3);color:var(--navy);font-size:var(--fs-lg);font-weight:700}
+
+.muted{color:var(--muted)}
+
+.small{font-size:var(--fs-sm)}
+
+.cell-note{max-width:360px;min-width:230px;color:var(--muted);font-size:var(--fs-sm);line-height:1.6}
+
+.coverage{max-width:250px;min-width:180px;font-size:var(--fs-sm)}
+
 .nowrap{white-space:nowrap}
 
-/* ---------- Brand chart: DJI spec-column rhythm ---------- */
-.legend{display:flex;gap:20px;font-size:12px;color:var(--ink2);margin-bottom:14px}
-.dot{display:inline-block;width:8px;height:8px;margin-right:6px;background:var(--blue)}
-.dot.neg{background:var(--error)}
-.dot.neu{background:var(--ink3)}
-.brand-chart{border:1px solid var(--divider);padding:8px 24px;background:var(--canvas)}
-.chart-row{display:grid;grid-template-columns:170px 1fr 64px;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid var(--hairline)}
-.chart-row:last-child{border-bottom:0}
-.chart-name{font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stack{display:flex;height:14px;background:var(--fog);border-radius:0;overflow:hidden}
-.stack span{height:100%}
-.pos{background:var(--blue)}
-.neg{background:var(--error)}
-.neu{background:var(--ink3)}
-.net-value{font-size:16px;font-weight:600;letter-spacing:-.4px;text-align:right;color:var(--ink)}
-.net-value.negative{color:var(--error)}
 
-/* ---------- Disclosure: faq-row chrome, collapsed by default ---------- */
-.disclosure{border-top:1px solid var(--divider);margin-top:20px}
-.disclosure.block{margin-top:56px}
-.disclosure>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;cursor:pointer;font-size:16px;font-weight:600;letter-spacing:-.32px;color:var(--ink);border-bottom:1px solid var(--divider)}
-.disclosure>summary::-webkit-details-marker{display:none}
-.disclosure>summary::after{content:'';width:8px;height:8px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);transform:rotate(45deg);transition:transform .18s;flex:none}
-.disclosure[open]>summary::after{transform:rotate(225deg)}
-.sum-hint{font-size:12px;font-weight:400;color:var(--ink3);letter-spacing:-.24px;margin-left:auto}
-.disclosure-body{padding:24px 0 4px}
 
-/* ---------- Verdict: polarity-flipped featured tier ---------- */
-.verdict{display:grid;grid-template-columns:1.25fr 1fr;background:var(--ink);color:#fff}
-.verdict-main{padding:32px}
-.verdict-side{padding:32px;border-left:1px solid var(--footer-divider)}
-.rank-label{display:inline-block;color:var(--badge);font-size:12px;letter-spacing:-.24px;text-transform:uppercase}
-.verdict h3{font-size:32px;font-weight:500;line-height:1.125;margin:14px 0 6px;color:#fff}
-.verdict .muted{color:var(--footer-link)}
-.verdict p{margin:10px 0;font-size:14px;line-height:1.43;letter-spacing:-.28px}
-.verdict-side strong{display:block;font-size:14px;font-weight:600;margin-top:2px}
-.verdict-side strong:not(:first-child){margin-top:20px}
-.verdict .chip{background:var(--footer-pill);color:#fff}
-.verdict .chip.amber{background:var(--badge);color:#fff}
+/* ---------- Chips ---------- */
 
-/* ---------- Chips & pills as labels ---------- */
-.chip{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--ink);font-size:12px;font-weight:400;letter-spacing:-.24px;white-space:nowrap}
-.chip.red{color:var(--error);background:rgba(245,34,45,.07)}
-.chip.amber{color:var(--tier);background:rgba(190,78,4,.08)}
-.chip.blue{background:var(--blue-tint);color:var(--blue)}
-.chip.gray{background:var(--fog);color:var(--ink2)}
-.button-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{display:inline-block;border-radius:var(--r-pill);padding:4px 11px;font-size:var(--fs-sm);background:var(--teal-soft);color:var(--teal-600);font-weight:650;white-space:nowrap}
 
-/* ---------- Candidates ---------- */
-.candidate-list{display:grid;gap:0;border-top:1px solid var(--divider)}
-.candidate{display:grid;grid-template-columns:52px 1.2fr 1.5fr 1.4fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--hairline);align-items:start}
-.rank{font-size:24px;font-weight:600;letter-spacing:-.72px;color:var(--ink3)}
-.candidate h3{margin:0 0 6px;font-size:18px;font-weight:600;letter-spacing:-.36px}
-.candidate .version{font-size:12px;color:var(--blue);margin-bottom:8px}
-.candidate p{font-size:14px;line-height:1.43;letter-spacing:-.28px;color:var(--ink2);margin:0}
+.chip.red{background:var(--red-soft);color:var(--red)}
+
+.chip.amber{background:var(--amber-soft);color:var(--amber)}
+
+.chip.gray{background:#edf0f1;color:#56666e}
+
+.button-row{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4)}
+
+
+
+/* ---------- Decision ---------- */
+
+.verdict{display:grid;grid-template-columns:1.35fr 1fr;overflow:hidden;border-left:4px solid var(--teal)}
+
+.verdict-main{padding:var(--s8);background:linear-gradient(135deg,#fff 0%,#eaf6f1 100%)}
+
+.verdict-side{padding:var(--s8);border-left:1px solid var(--line)}
+
+.rank-label{display:inline-block;color:var(--teal-600);font-weight:800;font-size:var(--fs-sm);letter-spacing:.1em;background:var(--card);border:1px solid #bfe3d6;border-radius:var(--r-pill);padding:4px 12px}
+
+.verdict h3{font-size:var(--fs-2xl);margin:12px 0 6px;color:var(--navy);letter-spacing:-.01em}
+
+.verdict p{margin:8px 0}
+
+.verdict-side strong{display:block;color:var(--navy);font-size:var(--fs-base);margin-top:2px}
+
+.verdict-side strong:not(:first-child){margin-top:var(--s4)}
+
+.candidate-list{display:grid;gap:var(--s3)}
+
+.candidate{display:grid;grid-template-columns:48px 1.2fr 1.5fr 1.4fr;gap:var(--s4);padding:var(--s5);align-items:start;border-left:3px solid transparent}
+
+.candidate:first-child{border-left-color:var(--teal);background:linear-gradient(90deg,#f4fbf8,var(--card) 35%)}
+
+.rank{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:var(--r-md);background:var(--surface);color:#8ba2a6;font-size:var(--fs-lg);font-weight:800}
+
+.candidate:first-child .rank{background:var(--teal);color:#fff}
+
+.candidate h3{margin:0 0 5px;color:var(--navy);font-size:var(--fs-md);font-weight:700}
+
+.candidate .version{font-size:var(--fs-sm);color:var(--teal-600);margin-bottom:6px}
+
+.candidate p{font-size:var(--fs-base);margin:0;color:var(--muted)}
+
 .candidate strong{color:var(--ink)}
-.notice{padding:16px 20px;background:var(--announce);border-left:2px solid var(--tier);color:var(--ink2);font-size:14px;line-height:1.43;letter-spacing:-.28px}
-.notice strong{color:var(--ink)}
+
+.notice{border-left:4px solid var(--amber);background:var(--amber-soft);padding:var(--s4) var(--s5);border-radius:var(--r-sm);color:#6d4f1c;font-size:var(--fs-base)}
+
+.notice strong{color:#5c3f0f}
+
+
 
 /* ---------- Tables ---------- */
-.table-wrap{overflow:auto;border:1px solid var(--divider);background:var(--canvas)}
-table{width:100%;border-collapse:collapse;font-size:14px;letter-spacing:-.28px}
-th{background:var(--soft);color:var(--ink2);font-size:12px;font-weight:400;letter-spacing:-.24px;text-align:left;padding:12px 14px;white-space:nowrap;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--divider)}
-td{padding:14px;border-bottom:1px solid var(--hairline);vertical-align:top;line-height:1.43}
-tbody tr:hover{background:var(--soft)}
+
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card);box-shadow:var(--shadow-sm)}
+
+table{width:100%;border-collapse:collapse;font-size:var(--fs-base)}
+
+th{background:var(--surface);color:#40565e;text-align:left;font-size:var(--fs-sm);font-weight:700;letter-spacing:.02em;padding:12px var(--s3);white-space:nowrap;position:sticky;top:0;z-index:2;box-shadow:inset 0 -1px 0 var(--line)}
+
+td{padding:var(--s3);border-top:1px solid var(--line-2);vertical-align:top;line-height:1.6}
+
+tbody tr:nth-child(even){background:#fbfcfc}
+
+tbody tr:hover{background:var(--teal-soft)}
+
 td strong{color:var(--ink)}
+
 .numcell{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.sentiment{font-weight:600}
-.sentiment.positive{color:var(--blue)}
-.sentiment.negative{color:var(--error)}
-.bar-track{height:4px;background:var(--fog);margin-top:6px}
-.bar-fill{height:100%;background:var(--blue)}
-.bar-fill.negative{background:var(--error)}
-.empty{padding:40px;text-align:center;color:var(--ink3);font-size:14px}
-.pending-row{background:var(--announce)}
+
+.sentiment{font-weight:750;white-space:nowrap}
+
+.sentiment.positive{color:var(--teal)}
+
+.sentiment.negative{color:var(--red)}
+
+.empty{padding:var(--s8);text-align:center;color:var(--muted)}
+
+.pending-row{background:#fffaf0}
+
+
 
 /* ---------- Controls ---------- */
-.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.input,.select{border:1px solid var(--border);background:var(--canvas);border-radius:0;padding:9px 12px;font-size:14px;color:var(--ink);letter-spacing:-.28px;height:40px}
-.input:focus,.select:focus{outline:none;border-color:var(--blue)}
+
+.controls{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s3)}
+
+.input,.select{border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);padding:9px 12px;font:inherit;font-size:var(--fs-base);color:var(--ink);transition:border-color .18s,box-shadow .18s}
+
+.input:focus,.select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,118,99,.12)}
+
 .input{min-width:230px;flex:1}
+
 .select{min-width:145px}
-.export-btn{border:1px solid var(--border);background:var(--canvas);color:var(--ink);padding:0 16px;height:40px;cursor:pointer;font-size:14px;letter-spacing:-.28px}
-.export-btn:hover{border-color:var(--blue);color:var(--blue)}
 
-/* ---------- Lists, arguments, evidence ---------- */
+.export-btn{border:1px solid #cddadb;background:var(--card);color:var(--navy);padding:8px 13px;border-radius:var(--r-sm);cursor:pointer;font-size:var(--fs-sm);font-weight:600;transition:all .18s}
+
+.export-btn:hover{border-color:var(--teal);color:var(--teal);box-shadow:var(--shadow-sm)}
+
+
+
+/* ---------- Charts ---------- */
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+
+.chart-row{display:grid;grid-template-columns:150px 1fr 52px;align-items:center;gap:10px;margin:12px 0;font-size:var(--fs-sm)}
+
+.chart-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.stack{height:15px;display:flex;border-radius:var(--r-sm);overflow:hidden;background:var(--surface)}
+
+.stack span{height:100%;transition:width .4s}
+
+.pos{background:#178f72}.neg{background:#cf5555}.neu{background:#d6a94f}
+
+.net-value{text-align:right;font-weight:750}
+
+.legend{display:flex;gap:var(--s4);color:var(--muted);font-size:var(--fs-sm);margin:10px 0 4px}
+
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+
+.bar-track{height:8px;background:#e7ecec;border-radius:var(--r-pill);overflow:hidden}
+
+.bar-fill{height:100%;background:var(--teal);border-radius:var(--r-pill)}
+
+.bar-fill.negative{background:var(--red)}
+
 .risk-list,.missing-list{margin:0;padding-left:20px}
-.risk-list li,.missing-list li{margin:10px 0;font-size:14px;line-height:1.43;letter-spacing:-.28px;color:var(--ink2)}
+
+.risk-list li,.missing-list li{margin:9px 0;font-size:var(--fs-base)}
+
 .risk-list strong{color:var(--ink)}
-.risk-item{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:14px 0;border-bottom:1px solid var(--hairline);font-size:14px;letter-spacing:-.28px}
-.risk-item strong{color:var(--error);font-weight:600}
-.argument{padding:24px;margin-bottom:16px;background:var(--soft)}
-.argument h3{margin:0 0 16px;font-size:18px;font-weight:600;letter-spacing:-.36px}
-.stance-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.stance-box{background:var(--canvas);border:1px solid var(--divider);padding:14px;font-size:14px;line-height:1.43;color:var(--ink2)}
-.stance-box strong{display:block;color:var(--ink);font-size:12px;font-weight:600;margin-bottom:6px}
-.argument .coding{margin:16px 0 0;font-size:12px;color:var(--tier)}
-.evidence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.evidence-card{padding:20px;border:1px solid var(--divider);border-left:2px solid var(--blue)}
-.evidence-card[data-stance="差评"]{border-left-color:var(--error)}
-.evidence-card[data-stance="中立/混合"]{border-left-color:var(--ink3)}
-.evidence-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.evidence-quote{font-size:16px;line-height:1.5;letter-spacing:-.32px;margin:14px 0 10px;color:var(--ink)}
-.evidence-why{font-size:12px;line-height:1.43;color:var(--ink2);margin:0}
-.evidence-ref{margin-top:14px;padding-top:10px;border-top:1px solid var(--hairline);font:11px/1.33 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--ink3);word-break:break-all}
 
-/* ---------- Update steps, code, method ---------- */
+.risk-item{display:grid;grid-template-columns:190px 1fr;gap:var(--s4);padding:14px 0;border-bottom:1px solid var(--line);font-size:var(--fs-base)}
+
+.risk-item:last-child{border-bottom:0}
+
+.risk-item strong{color:var(--red)}
+
+
+
+/* ---------- Arguments & evidence ---------- */
+
+.argument{padding:var(--s5) var(--s6);margin-bottom:var(--s3)}
+
+.argument h3{margin:0 0 var(--s4);color:var(--navy);font-size:var(--fs-md)}
+
+.stance-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--s3)}
+
+.stance-box{background:var(--paper);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:var(--s3);font-size:var(--fs-base);color:var(--ink-2)}
+
+.stance-box strong{display:block;color:var(--navy);margin-bottom:5px;font-size:var(--fs-sm)}
+
+.argument .coding{margin:var(--s3) 0 0;font-size:var(--fs-sm);color:var(--amber)}
+
+.evidence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3)}
+
+.evidence-card{padding:var(--s5);position:relative;overflow:hidden;border-left:3px solid var(--amber)}
+
+.evidence-card[data-stance="好评"]{border-left-color:var(--teal)}
+
+.evidence-card[data-stance="差评"]{border-left-color:var(--red)}
+
+.evidence-top{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+
+.evidence-quote{font-size:var(--fs-md);margin:13px 0 10px;color:var(--ink);line-height:1.7}
+
+.evidence-why{font-size:var(--fs-base);color:var(--muted);margin:0}
+
+.evidence-ref{margin-top:var(--s3);padding-top:10px;border-top:1px dashed var(--line);font:var(--fs-xs)/1.5 var(--mono);color:#78868c;word-break:break-all}
+
+
+
+/* ---------- Update & method ---------- */
+
+.update-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--s4)}
+
 .steps{counter-reset:step;list-style:none;padding:0;margin:0}
-.steps li{position:relative;padding:0 0 20px 40px;font-size:14px;line-height:1.43;color:var(--ink2)}
-.steps li:before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;text-align:center;line-height:26px;font-size:12px}
-.code{background:var(--footer);color:#e8e8e8;padding:20px;font:12px/1.75 ui-monospace,SFMono-Regular,Consolas,monospace;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:10px 0 16px}
-.code .comment{color:#a6a6a6}
-.status-line{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink2);margin-bottom:16px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--badge)}
-.status-dot.ok{background:var(--blue)}
-.method{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.method-card{padding:24px;background:var(--soft)}
-.method-card h3{font-size:16px;font-weight:600;letter-spacing:-.32px;margin:0 0 10px}
-.method-card p{font-size:12px;line-height:1.43;color:var(--ink2);margin:0}
-.formula{font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--canvas);padding:12px;margin-top:14px;color:var(--ink2)}
-.filter-label{font-size:12px;color:var(--ink2)}
 
-/* ---------- Footer: charcoal ---------- */
-.footer{margin-top:64px;background:var(--footer);color:var(--footer-link);padding:32px 0;font-size:12px;line-height:2;letter-spacing:-.24px}
-.footer strong{color:#fff;font-weight:500}
-.footer-link{color:var(--footer-link);text-decoration:underline;text-underline-offset:2px}
+.steps li{position:relative;padding:0 0 var(--s4) 42px;font-size:var(--fs-base)}
 
-/* ---------- Floating circle button ---------- */
-.to-top{position:fixed;right:24px;bottom:24px;width:40px;height:40px;border-radius:50%;border:1px solid var(--divider);background:var(--canvas);color:var(--ink);box-shadow:var(--float);cursor:pointer;font-size:16px;display:none;align-items:center;justify-content:center;z-index:30}
+.steps li:before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;text-align:center;line-height:26px;font-size:var(--fs-sm);font-weight:700}
+
+.code{background:#142c34;color:#d9eee7;padding:var(--s4);border-radius:var(--r-sm);font:var(--fs-sm)/1.75 var(--mono);overflow:auto;white-space:pre-wrap;word-break:break-all;margin:var(--s2) 0 var(--s4)}
+
+.code .comment{color:#84aaa5}
+
+.status-line{display:flex;gap:var(--s2);align-items:center;font-size:var(--fs-sm);color:var(--muted);margin-bottom:var(--s3)}
+
+.status-dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+
+.status-dot.ok{background:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
+
+.method{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
+
+.method-card{padding:var(--s5)}
+
+.method-card h3{font-size:var(--fs-md);color:var(--navy);margin:0 0 9px}
+
+.method-card p{font-size:var(--fs-base);color:var(--muted);margin:0}
+
+.formula{font:var(--fs-base)/1.6 var(--mono);background:var(--surface);padding:10px 12px;border-radius:var(--r-sm);color:var(--teal-600);margin-top:var(--s3)}
+
+
+
+/* ---------- Footer & back-to-top ---------- */
+
+.footer{margin-top:var(--s12);padding:var(--s6) 0 var(--s10);border-top:1px solid var(--line);font-size:var(--fs-sm);color:var(--muted)}
+
+.to-top{position:fixed;right:22px;bottom:22px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--navy);box-shadow:var(--shadow-md);cursor:pointer;font-size:17px;display:none;align-items:center;justify-content:center;z-index:30;transition:all .2s}
+
 .to-top.show{display:flex}
-.to-top:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.to-top:hover{background:var(--teal);color:#fff;border-color:var(--teal);transform:translateY(-2px)}
+
+
+
+/* ---------- Motion preference ---------- */
+
+@media (prefers-reduced-motion:reduce){
+
+  html{scroll-behavior:auto}
+
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+
+}
+
+
 
 /* ---------- Responsive ---------- */
-@media(max-width:1080px){.nav{gap:16px}.brandmark{font-size:12px}}
+
+@media(max-width:1080px){.nav{gap:var(--s3)}.brandmark{font-size:12px}}
+
 @media(max-width:900px){
+
   .metrics{grid-template-columns:repeat(3,1fr)}
-  .verdict,.update-grid,.two-col,.stance-grid,.method{grid-template-columns:1fr}
-  .verdict-side{border-left:0;border-top:1px solid var(--footer-divider)}
-  .candidate{grid-template-columns:44px 1fr;gap:12px}
+
+  .verdict,.update-grid,.two-col{grid-template-columns:1fr}
+
+  .verdict-side{border-left:0;border-top:1px solid var(--line)}
+
+  .candidate{grid-template-columns:44px 1fr}
+
   .candidate>div:nth-child(3),.candidate>div:nth-child(4){grid-column:2}
+
+  .stance-grid,.method{grid-template-columns:1fr}
+
+  .hero h1{font-size:32px}
+
   .evidence-grid{grid-template-columns:1fr}
-  .topbar-inner{flex-wrap:wrap;height:auto;min-height:64px;padding-top:10px;padding-bottom:10px;gap:12px}
-  .nav{order:3;width:100%;height:36px;gap:20px}
-  .nav-action{margin-left:auto}
-  .hero h1{font-size:32px;letter-spacing:-.96px}
-  .section h2{font-size:26px;letter-spacing:-.72px}
-  .verdict h3{font-size:26px}
-  .chart-row{grid-template-columns:130px 1fr 54px;gap:10px}
+
+  .topbar-inner{flex-wrap:wrap;gap:var(--s2);padding-top:8px;padding-bottom:8px}
+
+  .nav{order:3;width:100%;flex:none;gap:var(--s4)}
+
+  .print-btn{margin-left:auto}
+
+  .verdict-main,.verdict-side{padding:var(--s6)}
+
 }
+
 @media(max-width:560px){
-  .wrap{padding:0 16px}
-  .hero{padding:40px 0 32px}
-  .hero h1{font-size:26px;letter-spacing:-.72px}
-  .hero-lede{font-size:14px}
+
+  .wrap{padding:0 var(--s4)}
+
+  .hero{padding:var(--s10) 0}
+
+  .hero h1{font-size:27px}
+
   .metrics{grid-template-columns:repeat(2,1fr)}
-  .metric{padding:20px 16px}
-  .metric .num{font-size:32px}
-  .section{padding-top:40px}
-  .section h2{font-size:22px;letter-spacing:-.6px}
-  .chart-row{grid-template-columns:104px 1fr 46px;gap:8px}
-  .brand-chart{padding:6px 14px}
+
+  .metric{padding:var(--s3)}
+
+  .metric .num{font-size:23px}
+
+  .section{padding-top:var(--s8)}
+
+  .section h2{font-size:var(--fs-lg)}
+
+  .candidate{padding:var(--s4)}
+
   .risk-item{grid-template-columns:1fr;gap:4px}
-  .verdict-main,.verdict-side{padding:24px}
-  .sum-hint{display:none}
+
+  .chart-row{grid-template-columns:110px 1fr 45px}
+
+  .verdict h3{font-size:23px}
+
+  .to-top{right:14px;bottom:14px}
+
 }
+
+
 
 /* ---------- Print ---------- */
+
 @media print{
-  .topbar,.controls,.export-btn,.to-top,.progress,.hero-actions{display:none!important}
-  .hero{padding:20px 0}
-  .hero h1{font-size:28px}
-  .disclosure>summary{display:none}
-  .disclosure-body{display:block!important;padding:12px 0}
-  .card,.metric,.argument,.evidence-card{break-inside:avoid}
-  .section{padding-top:24px}
+
+  .topbar,.controls,.export-btn,.print-btn,.to-top,.progress{display:none!important}
+
+  body{background:#fff}
+
+  .hero{padding:22px 0;background:#fff!important;color:var(--ink)}
+
+  .hero::before,.hero::after{display:none}
+
+  .hero h1{font-size:26px}
+
+  .hero-sub,.snapshot,.hero-tag{color:var(--muted)}
+
+  .hero-tag{border-color:var(--line)}
+
+  .eyebrow{color:var(--teal-600)}
+
+  .eyebrow::before{display:none}
+
+  .metrics{margin-top:var(--s4)}
+
+  .metric,.card{box-shadow:none;break-inside:avoid}
+
+  .section{padding-top:var(--s5)}
+
   .wrap{max-width:none;padding:0 12px}
+
   .evidence-grid{grid-template-columns:1fr 1fr}
+
+  .footer{margin-top:var(--s5)}
+
+  .candidate:first-child{background:none}
+
 }
+
 </style>
+
 </head>
+
 <body>
-<header class="topbar"><div class="progress" id="progress"></div><div class="wrap topbar-inner">
-<div class="brandmark">KEYBOARD / ANALYSIS</div>
-<nav class="nav">
-<a href="#brands">品牌评分</a><a href="#decision">购买结论</a><a href="#pricing">价格与预算</a><a href="#mapping">品牌系列映射</a><a href="#series">系列评分</a><a href="#arguments">争论解码</a><a href="#evidence">原评证据</a><a href="#update">增量更新</a>
-</nav>
-<button class="pill-primary pill-sm nav-action" onclick="window.print()">导出 PDF</button>
-</div></header>
 
-<section class="hero"><div class="wrap">
-<div class="tier-eyebrow">Comment intelligence · 小红书评论区分析</div>
-<h1>565 条留言之后，<br>哪把键盘真正适合长期码字？</h1>
-<p class="hero-lede">把真实推荐、故障反馈、老产品情怀与无意义骂战拆开，用可回查的证据给出购买结论。</p>
-<div class="hero-actions"><a class="primary" href="#brands">查看品牌评分 ›</a><a class="outline" href="#decision">直接看购买结论 ›</a></div>
-<div class="hero-meta"><span id="budgetTag"></span> · <span id="usageTag"></span></div>
-<div class="hero-meta" id="snapshot"></div>
-</div></section>
+<header class="topbar"><div class="progress" id="progress"></div><div class="wrap topbar-inner"><div class="brandmark">KEYBOARD / DECISION</div><nav class="nav"><a href="#decision">购买结论</a><a href="#mapping">品牌系列映射</a><a href="#pricing">价格与预算</a><a href="#brands">品牌评分</a><a href="#series">系列评分</a><a href="#arguments">争论解码</a><a href="#evidence">原评证据</a><a href="#update">增量更新</a></nav><button class="print-btn" onclick="window.print()">打印 / 导出 PDF</button></div></header>
 
-<div class="metrics-band"><div class="wrap metrics" id="metrics"></div></div>
+<section class="hero"><div class="wrap"><div class="eyebrow">XIAOHONGSHU COMMENT INTELLIGENCE</div><h1>565 条留言之后，<br>哪把键盘真正适合长期码字？</h1><p class="hero-sub">把推荐、真实故障、老产品情怀与无意义骂战拆开。以“品牌—系列—型号”为主线，给出可回查、可复核、可持续更新的购买决策报告。</p><div class="hero-tags"><span class="hero-tag" id="budgetTag"></span><span class="hero-tag" id="usageTag"></span><span class="hero-tag">评论证据，不等于市场故障率</span></div><div class="snapshot" id="snapshot"></div></div></section>
 
 <main class="wrap">
 
-<section class="section" id="brands">
-<div class="section-head"><div><div class="tier-eyebrow">01 / BRAND SCORE</div><h2>品牌评分</h2><p class="section-desc">净口碑分 =（好评 − 差评）÷ 相关评论数 × 100。小样本净分波动大，请结合完整数据表阅读。</p></div></div>
-<div class="legend"><span><i class="dot"></i>好评</span><span><i class="dot neg"></i>差评</span><span><i class="dot neu"></i>中立模糊</span></div>
-<div class="brand-chart" id="brandChart"></div>
-<details class="disclosure"><summary>展开完整品牌数据表与筛选<span class="sum-hint" id="brandSummaryHint"></span></summary><div class="disclosure-body">
-<div class="controls"><input id="brandSearch" class="input" placeholder="搜索品牌、备注或系列覆盖情况…"><select id="brandMin" class="select"><option value="0">全部样本量</option><option value="5" selected>至少 5 条</option><option value="10">至少 10 条</option><option value="20">至少 20 条</option></select><select id="brandSort" class="select"><option value="net">按净口碑分</option><option value="total">按评论数</option><option value="positive">按好评数</option><option value="negative">按差评数</option></select><button class="export-btn" onclick="exportCSV('brand')">导出 CSV</button></div>
-<div class="table-wrap"><table><thead><tr><th>品牌 / 统计范围</th><th class="numcell">相关评论</th><th class="numcell">好评率</th><th class="numcell">差评率</th><th class="numcell">中立模糊率</th><th class="numcell">净分</th><th>系列覆盖与购买解读</th></tr></thead><tbody id="brandRows"></tbody></table></div>
-<p class="small muted" id="brandCount"></p>
-<div class="card pad"><h3>小样本品牌：只作线索，不作稳定排名</h3><ul class="risk-list" id="smallSamples"></ul></div>
-<div class="card pad" style="margin-top:16px"><h3>核心发现</h3><ul class="risk-list"><li><strong>迈从：</strong>11条相关评论中8好评、0差评，K99型号证据相对集中。</li><li><strong>ROG：</strong>游侠/RX表现突出，但夜魔双击问题必须按系列隔离。</li><li><strong>Realforce：</strong>口碑强，但与当前预算明显不匹配。</li><li><strong>Filco：</strong>讨论量最大，净分仅-8.9；真实分歧是“耐用”与“当前购买价值”。</li><li><strong>NuPhy / EVO：</strong>故障和售后描述比情绪化“吊打”更值得关注。</li></ul></div>
-</div></details>
-</section>
+<div class="metrics" id="metrics"></div>
 
-<section class="section" id="decision">
-<div class="section-head"><div><div class="tier-eyebrow">02 / DECISION</div><h2>购买结论</h2><p class="section-desc">排序同时考虑预算、码字适配、具体型号证据与故障／售后风险，而非只看评论净分。</p></div></div>
-<div id="verdict"></div>
-<details class="disclosure" open><summary>查看全部候选排序与风险<span class="sum-hint">预算内 / 券后临界 / 超预算已标注</span></summary><div class="disclosure-body">
-<div class="candidate-list" id="candidates"></div>
-<div class="notice" style="margin-top:20px"><strong>下单前的硬性动作：</strong>确认当前售价、轴体、配列、连接版本和退换政策；优先实际试打。报告中的“359”“399”“300来块”均为评论中的历史价格，未做实时核验。</div>
-<div class="card pad" style="margin-top:16px" id="originalPostCard"></div>
-<div class="two-col" style="margin-top:16px"><div class="card pad"><h3>暂不建议直接下单</h3><div id="avoidList"></div></div><div class="card pad"><h3>如何读这份报告</h3><ul class="risk-list"><li><strong>好评／差评／中立模糊</strong>为三个独立计数，合计100%。</li><li><strong>净口碑分</strong> =（好评－差评）÷相关评论数×100。</li><li><strong>评论数不等于独立用户数</strong>。</li><li><strong>系列缺失不会硬补</strong>，品牌泛评不分摊给某型号。</li><li><strong>Cherry轴体与整机、Realforce与泛静电容</strong>分开理解。</li></ul></div></div>
-</div></details>
-</section>
+<section class="section" id="decision"><div class="section-head"><div><div class="kicker">01 / DECISION</div><h2>购买结论：K99 首选，游侠2 看券，超预算系列直接排除</h2><p class="section-desc">评论净分衡量帖子里的口碑方向，不衡量绝对质量。最终排序同时考虑预算、码字适配、具体型号证据与故障／售后风险。</p></div></div><div id="verdict"></div><div style="height:14px"></div><div class="candidate-list" id="candidates"></div><div style="height:16px"></div><div class="notice"><strong>下单前的硬性动作：</strong>确认当前售价、轴体、配列、连接版本和退换政策；优先实际试打。报告中的“359”“399”“300来块”均为评论中的历史价格，未做实时核验。</div><div class="card pad" style="margin-top:16px" id="originalPostCard"></div></section>
 
-<details class="disclosure block" id="pricing"><summary>当前售价与预算评估<span class="sum-hint">300–400 元预算 · 超预算已标注</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">03 / PRICE &amp; BUDGET</div><h2 style="font-size:26px;font-weight:600;letter-spacing:-.72px;margin:8px 0">按当前售价重新评估</h2>
-<p class="section-desc" id="priceMethod"></p>
-<div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>品牌</th><th>系列</th><th>当前到手价</th><th>预算状态</th><th>版本与需求匹配</th><th>结论与依据</th></tr></thead><tbody id="priceRows"></tbody></table></div>
-<p class="small muted" id="priceCaveat"></p>
-</div></details>
+<section class="section" id="mapping"><div class="section-head"><div><div class="kicker">02 / AUTHORITATIVE MAPPING</div><h2>按提供清单整理的品牌—系列对应关系</h2><p class="section-desc">此表为用户提供的权威映射；只有原文明确出现系列才计入系列层。标注“零确认命中”的系列没有评论证据，不会从品牌评分中借用。</p></div></div><div class="table-wrap"><table><thead><tr><th>规范品牌</th><th>规范系列</th><th>识别别名</th><th class="numcell">品牌好/差/中</th><th class="numcell">系列好/差/中</th><th>状态与说明</th></tr></thead><tbody id="mappingRows"></tbody></table></div><p class="small muted">“未指定系列”表示该品牌评论只停留在品牌层；“零确认命中”表示清单指定了系列名，但原帖没有明确写出它。</p></section>
 
-<details class="disclosure block" id="mapping"><summary>品牌—系列映射关系<span class="sum-hint">用户提供的权威清单</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">04 / AUTHORITATIVE MAPPING</div><h2 style="font-size:26px;font-weight:600;letter-spacing:-.72px;margin:8px 0">按提供清单整理</h2>
-<p class="section-desc">只有原文明确出现系列才计入系列层。“零确认命中”的系列没有评论证据，不会从品牌评分中借用。</p>
-<div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>规范品牌</th><th>规范系列</th><th>识别别名</th><th class="numcell">品牌好/差/中</th><th class="numcell">系列好/差/中</th><th>状态与说明</th></tr></thead><tbody id="mappingRows"></tbody></table></div>
-<p class="small muted">“未指定系列”表示评论只停留在品牌层；“零确认命中”表示清单指定了系列名，但原帖没有明确写出它。</p>
-</div></details>
+<section class="section" id="pricing"><div class="section-head"><div><div class="kicker">03 / PRICE & BUDGET</div><h2>按当前售价重新评估：哪些真正在 300–400 元内？</h2><p class="section-desc" id="priceMethod"></p></div></div><div class="table-wrap"><table><thead><tr><th>品牌</th><th>系列</th><th>当前到手价</th><th>预算状态</th><th>版本与需求匹配</th><th>结论与依据</th></tr></thead><tbody id="priceRows"></tbody></table></div><p class="small muted" id="priceCaveat"></p></section>
 
-<details class="disclosure block" id="series"><summary>系列与型号评分<span class="sum-hint">型号缺失本身就是结论</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">05 / SERIES &amp; MODEL</div><h2 style="font-size:26px;font-weight:600;letter-spacing:-.72px;margin:8px 0">品牌—系列层面</h2>
-<p class="section-desc">系列统计只纳入能可靠落到该系列的评论。品牌泛评不会向下分摊。</p>
-<div class="controls" style="margin-top:18px"><input id="seriesSearch" class="input" placeholder="搜索品牌、系列、风险或缺失信息…"><select id="seriesSort" class="select"><option value="curated">按购买相关度</option><option value="net">按净口碑分</option><option value="total">按评论数</option></select><button class="export-btn" onclick="exportCSV('series')">导出 CSV</button></div>
-<div class="table-wrap"><table><thead><tr><th>品牌</th><th>系列 / 型号组</th><th class="numcell">评论</th><th class="numcell">好 / 差 / 中</th><th class="numcell">净分</th><th>证据强度</th><th>评价与数据缺失</th></tr></thead><tbody id="seriesRows"></tbody></table></div>
-<p class="small muted" id="seriesCount"></p>
-</div></details>
+<section class="section"><div class="two-col"><div class="card pad"><h3>暂不建议直接下单</h3><div id="avoidList"></div></div><div class="card pad"><h3>如何读这份报告</h3><ul class="risk-list"><li><strong>好评／差评／中立模糊</strong>是三个独立计数与占比，合计为100%。</li><li><strong>净口碑分</strong> =（好评数－差评数）÷相关评论数×100，范围 -100 至 100。</li><li><strong>评论数不等于独立用户数</strong>，同一讨论串可能有多条回复。</li><li><strong>系列缺失不会硬补</strong>，品牌泛评只进入品牌层，不分摊给某型号。</li><li><strong>Cherry轴体与整机、Realforce与泛静电容</strong>分开理解。</li></ul></div></div></section>
 
-<details class="disclosure block" id="arguments"><summary>争论解码：他们站在哪个品牌一边<span class="sum-hint">吵架评论的立场归类</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">06 / ARGUMENT DECODING</div><h2 style="font-size:26px;font-weight:600;letter-spacing:-.72px;margin:8px 0">他们在吵什么</h2>
-<p class="section-desc">争论评论只在出现明确产品立场时才编码。对“设备优越感”的反驳，不自动转换成该设备品牌的差评。</p>
-<div id="argumentList" style="margin-top:18px"></div>
-</div></details>
+<section class="section" id="brands"><div class="section-head"><div><div class="kicker">04 / BRAND</div><h2>品牌层面：好评率之外，更要看差评在说什么</h2><p class="section-desc">默认展示至少5条相关评论的品牌。小样本净分波动很大，请结合右侧覆盖率和备注阅读。</p></div><button class="export-btn" onclick="exportCSV('brand')">导出当前品牌汇总 CSV</button></div><div class="two-col"><div class="card pad"><h3>主要品牌三维度构成</h3><div class="legend"><span><i class="dot pos"></i>好评</span><span><i class="dot neg"></i>差评</span><span><i class="dot neu"></i>中立模糊</span></div><div id="brandChart"></div></div><div class="card pad"><h3>核心发现</h3><ul class="risk-list"><li><strong>迈从：</strong>11条相关评论中8好评、0差评，且K99型号证据相对集中。</li><li><strong>ROG：</strong>游侠/RX表现突出，但夜魔的双击问题必须按系列隔离。</li><li><strong>Realforce：</strong>口碑强，却与当前预算明显不匹配。</li><li><strong>Filco：</strong>讨论量最大，净分仅-8.9；真实分歧是“耐用”与“当前购买价值”。</li><li><strong>NuPhy / EVO：</strong>样本不大，但故障和售后描述比情绪化“吊打”更值得关注。</li></ul></div></div><div style="height:16px"></div><div class="controls"><input id="brandSearch" class="input" placeholder="搜索品牌、备注或系列覆盖情况…"><select id="brandMin" class="select"><option value="0">全部样本量</option><option value="5" selected>至少 5 条</option><option value="10">至少 10 条</option><option value="20">至少 20 条</option></select><select id="brandSort" class="select"><option value="net">按净口碑分</option><option value="total">按评论数</option><option value="positive">按好评数</option><option value="negative">按差评数</option></select></div><div class="table-wrap"><table><thead><tr><th>品牌 / 统计范围</th><th class="numcell">相关评论</th><th class="numcell">好评率</th><th class="numcell">差评率</th><th class="numcell">中立模糊率</th><th class="numcell">净分</th><th>系列覆盖与购买解读</th></tr></thead><tbody id="brandRows"></tbody></table></div><p class="small muted" id="brandCount"></p><div class="card pad"><h3>小样本品牌：只作线索，不作稳定排名</h3><ul class="risk-list" id="smallSamples"></ul></div></section>
 
-<details class="disclosure block" id="evidence"><summary>代表性原评论证据<span class="sum-hint">每个判断都能回查</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">07 / TRACEABLE EVIDENCE</div><h2 style="font-size:26px;font-weight:600;letter-spacing:-.72px;margin:8px 0">可回查的原评</h2>
-<p class="section-desc">行号为原CSV物理起始行（含表头）；长期维护优先使用评论ID。</p>
-<div class="controls" style="margin-top:18px"><input id="evidenceSearch" class="input" placeholder="搜索原评、品牌、系列或评论ID…"><select id="evidenceStance" class="select"><option value="">全部立场</option><option>好评</option><option>差评</option><option>中立/混合</option></select></div>
-<div class="evidence-grid" id="evidenceGrid"></div>
-<p class="small muted" id="evidenceCount"></p>
-</div></details>
+<section class="section" id="series"><div class="section-head"><div><div class="kicker">05 / SERIES & MODEL</div><h2>品牌—系列层面：型号缺失本身就是重要结论</h2><p class="section-desc">系列统计只纳入能可靠落到该系列的评论。品牌泛评不会向下分摊；单条型号评价会标为“很低”证据强度。</p></div><button class="export-btn" onclick="exportCSV('series')">导出当前系列汇总 CSV</button></div><div class="controls"><input id="seriesSearch" class="input" placeholder="搜索品牌、系列、风险或缺失信息…"><select id="seriesSort" class="select"><option value="curated">按购买相关度</option><option value="net">按净口碑分</option><option value="total">按评论数</option></select></div><div class="table-wrap"><table><thead><tr><th>品牌</th><th>系列 / 型号组</th><th class="numcell">评论</th><th class="numcell">好 / 差 / 中</th><th class="numcell">净分</th><th>证据强度</th><th>评价与数据缺失</th></tr></thead><tbody id="seriesRows"></tbody></table></div><p class="small muted" id="seriesCount"></p></section>
 
-<details class="disclosure block"><summary>数据的缺失与解读边界<span class="sum-hint">不可过度解读之处</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">08 / LIMITATIONS</div><div class="card pad"><ul class="missing-list" id="missingList"></ul></div>
-</div></details>
+<section class="section" id="arguments"><div class="section-head"><div><div class="kicker">06 / ARGUMENT DECODING</div><h2>他们在吵什么，又究竟站在哪个品牌一边？</h2><p class="section-desc">争论评论只有在出现明确产品立场时才编码。对“设备优越感”的反驳，不自动转换成该设备品牌的差评。</p></div></div><div id="argumentList"></div></section>
 
-<details class="disclosure block" id="update"><summary>以后新增评论如何更新<span class="sum-hint">去重 · 初筛 · 复核 · 联动刷新</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">09 / INCREMENTAL WORKFLOW</div><h2 style="font-size:26px;font-weight:600;letter-spacing:-.72px;margin:8px 0">增量更新流程</h2>
-<div class="two-col" style="margin-top:18px"><div class="card pad"><div class="status-line"><span id="statusDot" class="status-dot"></span><span id="stateStatus"></span></div><ol class="steps"><li><strong>首次初始化基线</strong><br>对当前原始CSV执行一次左侧命令，只登记评论ID。</li><li><strong>未来导入更新后的CSV</strong><br>可传完整新导出，也可只传新增评论，按ID去重。</li><li><strong>复核不确定评论</strong><br>多品牌比较、争论、短回复和模糊立场会待复核。</li><li><strong>刷新与导出</strong><br>报告、筛选表和CSV导出同步变化。</li></ol></div><div class="card pad"><h3>在 keyboard_analysis 目录运行</h3><div class="code"><span class="comment"># 第一次：登记当前基线评论ID</span>
+<section class="section" id="evidence"><div class="section-head"><div><div class="kicker">07 / TRACEABLE EVIDENCE</div><h2>代表性原评论：每个关键判断都能回查</h2><p class="section-desc">行号为原CSV物理起始行（含表头），多行评论会影响物理行号；长期维护优先使用评论ID。</p></div></div><div class="controls"><input id="evidenceSearch" class="input" placeholder="搜索原评、品牌、系列或评论ID…"><select id="evidenceStance" class="select"><option value="">全部立场</option><option>好评</option><option>差评</option><option>中立/混合</option></select></div><div class="evidence-grid" id="evidenceGrid"></div><p class="small muted" id="evidenceCount"></p></section>
+
+<section class="section"><div class="section-head"><div><div class="kicker">08 / LIMITATIONS</div><h2>缺失、偏差与不可过度解读之处</h2></div></div><div class="card pad"><ul class="missing-list" id="missingList"></ul></div></section>
+
+<section class="section" id="update"><div class="section-head"><div><div class="kicker">09 / INCREMENTAL WORKFLOW</div><h2>以后新增评论：去重、初筛、复核、联动刷新</h2><p class="section-desc">当前基线是人工语义审定结果；更新工具只处理新评论ID，不会把565条基线评论重复计入。</p></div></div><div class="update-grid"><div class="card pad"><div class="status-line"><span id="statusDot" class="status-dot"></span><span id="stateStatus"></span></div><ol class="steps"><li><strong>首次初始化基线</strong><br>对当前这份原始CSV执行一次左侧命令。它只登记评论ID，不改变当前人工审定评分。</li><li><strong>未来导入更新后的CSV</strong><br>可传完整新导出，也可只传新增评论。工具按ID去重，原文件只读。</li><li><strong>复核不确定评论</strong><br>多品牌比较、争论、短回复和模糊立场会待复核；高置信度单品牌评论自动计入。</li><li><strong>刷新与导出</strong><br>报告、筛选表和CSV导出同步变化。新别名在 coding_rules.json 中维护，不改历史原文。</li></ol></div><div class="card pad"><h3>在 keyboard_analysis 目录运行</h3><div class="code"><span class="comment"># 第一次：登记当前基线评论ID</span>
+
 python update_analysis.py --init "C:\Users\admin\Desktop\xhs-keyboard-comments-full.csv"
 
+
+
 <span class="comment"># 以后：加入更新后的完整CSV</span>
+
 python update_analysis.py --update "你的新CSV完整路径.csv"
 
+
+
 <span class="comment"># 复核模糊评价（y计入 / p好评 / n差评 / u中立 / x排除）</span>
+
 python update_analysis.py --review
 
-<span class="comment"># 查看状态 / 仅重新生成报告</span>
-python update_analysis.py --status
-python update_analysis.py --rebuild</div><p class="small muted">依赖 Python 3，仅使用标准库。新别名在 coding_rules.json 中维护。</p></div></div>
-<div class="card pad" style="margin-top:16px"><h3>待复核新增标注 <span class="chip amber" id="pendingChip">0</span></h3><div class="table-wrap"><table><thead><tr><th>评论ID</th><th>品牌 / 系列</th><th>初步立场</th><th>原文</th><th>待复核原因</th></tr></thead><tbody id="pendingRows"></tbody></table></div></div>
-</div></details>
 
-<details class="disclosure block"><summary>评分方法与维护边界<span class="sum-hint">统计单位 · 情感口径 · 自动化边界</span></summary><div class="disclosure-body">
-<div class="tier-eyebrow">10 / METHODOLOGY</div><div class="method" style="margin-top:18px"><div class="card method-card"><h3>统计单位</h3><p>一条评论同时评价两个品牌可分别计入；同一品牌在同一评论中只计一次。点赞不加权。</p><div class="formula">好评率 = 好评数 / 相关评论数<br>差评率 = 差评数 / 相关评论数<br>中立率 = 中立模糊数 / 相关评论数</div></div><div class="card method-card"><h3>情感口径</h3><p>明确推荐为好评；故障、品控／售后问题为差评；拥有、询价或好坏并存为中立模糊。纯人身攻击不计。</p><div class="formula">净分 = (好评数 − 差评数)<br>　　　 / 相关评论数 × 100</div></div><div class="card method-card"><h3>自动化边界</h3><p>新评论语义不能靠计数公式可靠生成。工具做明确规则初筛，复杂语义留给人复核。</p><div class="formula">基线人工审定 + 高置信标注<br>+ 人工复核 = 当前报告</div></div></div>
-</div></details>
+
+<span class="comment"># 查看状态 / 仅重新生成报告</span>
+
+python update_analysis.py --status
+
+python update_analysis.py --rebuild</div><p class="small muted">依赖：Python 3，仅使用标准库。修改 annotations.json 后可执行 --rebuild。若新增品牌无法识别，把别名加入 coding_rules.json 后再处理新评论；已排除的旧记录不会被盲目重算。</p></div></div><div style="height:16px"></div><div class="card pad"><h3>待复核新增标注 <span class="chip amber" id="pendingChip">0</span></h3><div class="table-wrap"><table><thead><tr><th>评论ID</th><th>品牌 / 系列</th><th>初步立场</th><th>原文</th><th>待复核原因</th></tr></thead><tbody id="pendingRows"></tbody></table></div></div></section>
+
+<section class="section"><div class="section-head"><div><div class="kicker">10 / METHODOLOGY</div><h2>评分方法与维护边界</h2></div></div><div class="method"><div class="card method-card"><h3>统计单位</h3><p>一条评论同时评价两个品牌，可分别计入两个品牌；同一品牌在同一评论中只计一次。点赞不加权，同一作者连续回复不视作完全独立样本。</p><div class="formula">好评率 = 好评数 / 相关评论数<br>差评率 = 差评数 / 相关评论数<br>中立率 = 中立模糊数 / 相关评论数</div></div><div class="card method-card"><h3>情感口径</h3><p>明确推荐、满意或显著优于竞品为好评；不推荐、故障、品控／售后问题为差评；拥有、询价、指代不明或好坏并存为中立模糊。纯人身攻击不计。</p><div class="formula">净分 = (好评数 − 差评数)<br>　　　 / 相关评论数 × 100</div></div><div class="card method-card"><h3>自动化边界</h3><p>新增评论的语义立场不能靠简单计数公式可靠生成。本工具自动做明确规则初筛，把复杂语义留给人复核；评分表和报告则会随审定标注自动耦合更新。</p><div class="formula">基线人工审定 + 新增高置信标注<br>+ 新增人工复核 = 当前报告</div></div></div></section>
 
 </main>
 
 <footer class="footer"><div class="wrap"><strong>结论边界：</strong>本报告反映该小红书帖子中的口碑结构，不是随机抽样、实验室测试或真实故障率。任何型号都应在下单前核实现价、批次、轴体与售后。<br><span id="footerMeta"></span></div></footer>
-<button class="to-top" id="toTop" aria-label="返回顶部" title="返回顶部">↑</button>
+
 <script>
-const REPORT_DATA = {"meta": {"title": "小红书键盘求推荐评论｜购买决策分析", "source_file": "xhs-keyboard-comments-full.csv", "source_url": "https://www.xiaohongshu.com/explore/6af874f2000000002b01fcc7?xsec_token=CBARLqpEVXSVqGgzkWc_2IT8F_aIQNX2LsYPO41Ou1BaE=&xsec_source=pc_share&source=webshare", "snapshot": "2026-11-16 20:06 左右采集；评论最晚至 2026-11-16 19:35（页面时区）", "generated_at": "2026-11-16 20:52 GMT+8", "baseline_cutoff": "2026-11-16T19:35:00+08:00", "comments_total": 565, "main_comments": 272, "replies": 293, "usable_text": 563, "deleted": 2, "duplicate_ids": 0, "missing_date": 22, "budget": "约 300–400 元", "usage": "主要码字，偶尔打 Dota，重视打字舒服，不太在乎声音", "version": "1.3", "revision": "2026-11-16 21:50 GMT+8：加入中国大陆电商当前售价核验与预算适配重评估。", "last_render": "2026-11-16 22:08:37 GMT+8", "state_initialized": false, "known_comment_ids": 0, "accepted_new_annotations": 0, "pending_review": 0, "rules_version": 33}, "original_post": {"title": "求推荐键盘！谢谢", "verified_at": "2026-11-16 21:16 GMT+8", "summary": "原帖正文确认：楼主预算300–400元，主要码字，偶尔打Dota；因品牌和轴体选择过多而求推荐，并询问Filco现状、磁轴以及迈从、ikbc、瓦尔基里等品牌。", "coding_note": "楼主点名品牌属于求推荐，不计为品牌好评；网页本次仅用于交叉核验正文和可见上下文，完整评论统计仍以CSV评论ID为准。", "mentioned_candidates": ["迈从", "ikbc", "瓦尔基里"], "topics": ["Filco现状", "磁轴是否适合", "码字手感", "偶尔Dota"]}, "brands": [{"name": "Filco（含 MINILA）", "total": 146, "positive": 40, "negative": 53, "neutral": 53, "scope": "整机；含圣手、忍者、MINILA 等系列及品牌泛评", "coverage": "低：仅约25条可可靠落到具体系列", "note": "耐用和售后仍有好评，但当前手感、功能、连接与性价比争议大。"}, {"name": "Cherry（含轴体讨论）", "total": 62, "positive": 23, "negative": 24, "neutral": 15, "scope": "整机与轴体混合，不能直接视作整机口碑", "coverage": "低：大量内容为轴体争论", "note": "码字舒适性有支持，停滞、品控与性价比有批评。"}, {"name": "Leopold", "total": 26, "positive": 6, "negative": 9, "neutral": 11, "scope": "整机；大量为“大L”品牌泛评", "coverage": "低：多数没有具体型号", "note": "键帽与历史体验获认可，当前手感和购买价值分化。"}, {"name": "ROG", "total": 17, "positive": 6, "negative": 2, "neutral": 9, "scope": "整机；游侠2、魔导士与品牌泛评", "coverage": "中：游侠2 5条、魔导士3条，其余为品牌泛评", "note": "游侠2、魔导士、夜魔必须分列。"}, {"name": "迈从", "total": 10, "positive": 7, "negative": 0, "neutral": 3, "scope": "整机与K99系列", "coverage": "品牌10条；K99系列4条显式命中", "note": "按权威映射，泛国产/品牌泛评不外推到K99。"}, {"name": "ikbc", "total": 10, "positive": 4, "negative": 1, "neutral": 5, "scope": "整机及历史使用经验", "coverage": "低：具体系列不足", "note": "整体偏正面，但老型号经验较多。"}, {"name": "Ducky / 魔力鸭", "total": 10, "positive": 6, "negative": 2, "neutral": 2, "scope": "整机及旧款使用经验", "coverage": "低：9008 S3评价来自同一作者", "note": "旧款耐用评价好，不能等同当前产品竞争力。"}, {"name": "塔塔次方", "total": 7, "positive": 3, "negative": 1, "neutral": 3, "scope": "整机；evo75/evo80分列", "coverage": "高：evo75 3条、evo80 2条", "note": "旧口径存在evo75误标evo80，已纠正。"}, {"name": "阿米洛", "total": 9, "positive": 4, "negative": 2, "neutral": 3, "scope": "整机，含新老款比较", "coverage": "低：型号信息不足", "note": "老款体验较好，新款用料退步的观点需保留。"}, {"name": "HHKB", "total": 8, "positive": 2, "negative": 3, "neutral": 3, "scope": "整机；部分来自优越感争论", "coverage": "低：具体系列不足", "note": "真实产品立场与对优越感的反驳已尽量分开。"}, {"name": "NuPhy", "total": 6, "positive": 1, "negative": 4, "neutral": 1, "scope": "整机品牌泛评", "coverage": "缺失：Node75零显式命中", "note": "品控与售后差评集中。"}, {"name": "Realforce", "total": 6, "positive": 5, "negative": 0, "neutral": 1, "scope": "静电容整机；generic静电容评价未强行归入", "coverage": "低：R3仅1条明确评价", "note": "码字与耐用口碑好，但明显超出预算。"}, {"name": "ATK", "total": 3, "positive": 2, "negative": 0, "neutral": 1, "scope": "品牌与磁轴泛评；未指定系列", "coverage": "缺失：没有具体型号推荐", "note": "梵塔仅为用户自述在用，不构成推荐。"}, {"name": "狼蛛 AULA", "total": 5, "positive": 4, "negative": 1, "neutral": 0, "scope": "整机，含F87 Pro及品牌其他型号", "coverage": "低：F87 Pro仅1条明确评价", "note": "手感比较有好评，也有一条使用一年多后按键偶尔失灵。"}, {"name": "海盗船", "total": 5, "positive": 1, "negative": 1, "neutral": 3, "scope": "整机", "coverage": "低：系列型号不足", "note": "样本小，暂不能形成稳定结论。"}, {"name": "佳达隆", "total": 3, "positive": 1, "negative": 0, "neutral": 2, "scope": "轴体/卫星轴讨论；未指定系列", "coverage": "缺失：无整机系列", "note": "不是整机品牌评分。"}, {"name": "达尔优", "total": 2, "positive": 0, "negative": 0, "neutral": 2, "scope": "整机品牌泛评；未指定系列", "coverage": "缺失：仅问询或顺带提及", "note": "样本过小。"}], "series": [{"brand": "迈从", "name": "K99", "total": 4, "positive": 3, "negative": 0, "neutral": 1, "confidence": "低", "note": "有半年使用、手感和无线稳定好评；塑料机身有个别不喜欢。", "missing": "品牌层另有泛评，不下摊；V3/V3 Pro版本需核实。"}, {"brand": "ROG", "name": "游侠2", "total": 5, "positive": 3, "negative": 0, "neutral": 2, "confidence": "低", "note": "RX光红轴顺滑、游侠2有线版有价格线索。", "missing": "与ROG魔导士是不同系列；价格来自历史评论。"}, {"brand": "狼蛛 AULA", "name": "F87 Pro", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "有明确推荐。", "missing": "仅1条；品牌其他型号的失灵问题不能直接归到F87 Pro。"}, {"brand": "WOB", "name": "Rainy 75", "total": 7, "positive": 2, "negative": 2, "neutral": 3, "confidence": "低", "note": "手感与性价比推荐，同时存在V1轴座、品控和售后问题。", "missing": "版本与批次需核实。"}, {"brand": "ROG", "name": "魔导士", "total": 3, "positive": 1, "negative": 0, "neutral": 2, "confidence": "很低", "note": "有价格推荐与自述在用。", "missing": "长期码字、具体版本与价格均不足。"}, {"brand": "塔塔次方", "name": "evo75", "total": 3, "positive": 2, "negative": 0, "neutral": 1, "confidence": "低", "note": "打字轻、可玩OSU，另有全面优于旧Filco的主观评价。", "missing": "旧口径部分evo75误标evo80；样本小。"}, {"brand": "塔塔次方", "name": "evo80", "total": 2, "positive": 1, "negative": 1, "neutral": 0, "confidence": "很低", "note": "有正面体验，也有半年后多键连击差评。", "missing": "样本过小，需核实批次与售后。"}, {"brand": "Filco", "name": "圣手 / 圣手二代", "total": 16, "positive": 4, "negative": 6, "neutral": 6, "confidence": "中低", "note": "耐用与售后有好评；手感、功能、连接和当前性价比分化。", "missing": "不同年份、连接版本与轴体未完全拆分。"}, {"brand": "Filco", "name": "忍者 / 忍者二代", "total": 5, "positive": 2, "negative": 2, "neutral": 1, "confidence": "低", "note": "多年耐用与被国产新型号超越的评价并存。", "missing": "样本小，旧款经验占比不明。"}, {"brand": "Filco", "name": "MINILA", "total": 4, "positive": 1, "negative": 1, "neutral": 2, "confidence": "很低", "note": "耐用和便携布局有好评。", "missing": "仅4条，具体代次不足。"}, {"brand": "Filco", "name": "980M", "total": 1, "positive": 0, "negative": 1, "neutral": 0, "confidence": "很低", "note": "在历史比较中被国产新套件超越。", "missing": "单条历史比较，不能外推所有980M。"}, {"brand": "Leopold", "name": "NANA / OE NANA", "total": 3, "positive": 1, "negative": 2, "neutral": 0, "confidence": "很低", "note": "有主力键盘好评，也有手感落后评价。", "missing": "版本与使用时长不明。"}, {"brand": "Leopold", "name": "FC750", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "好评主要针对键帽。", "missing": "不足以证明整机当前购买价值。"}, {"brand": "Cherry", "name": "MX8.0", "total": 5, "positive": 1, "negative": 2, "neutral": 2, "confidence": "低", "note": "耐用、收藏价值与性价比评价冲突。", "missing": "需与Cherry轴体评价分开。"}, {"brand": "Cherry", "name": "MX8.3", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "单条办公好评。", "missing": "仅1条，无长期耐用信息。"}, {"brand": "Ducky / 魔力鸭", "name": "9008 S3", "total": 2, "positive": 2, "negative": 0, "neutral": 0, "confidence": "很低", "note": "两条均为正面旧款使用经验。", "missing": "两条来自同一作者，不是两个独立用户。"}, {"brand": "Realforce", "name": "R3", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "码字最多、手感好。", "missing": "单条且明确偏贵，不符合预算。"}, {"brand": "维咖（weikav）", "name": "NUT108", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "明确表示喜欢铝坨坨并自用维咖108。", "missing": "仅1条，不是强推荐。"}, {"brand": "首席玩家", "name": "Neo108", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "打字很舒服。", "missing": "单条，无长期耐用信息。"}, {"brand": "LEOBOG", "name": "Hi8SE", "total": 1, "positive": 0, "negative": 0, "neutral": 1, "confidence": "很低", "note": "仅表示正在使用并询问其他产品。", "missing": "不构成明确推荐。"}, {"brand": "NuPhy", "name": "Node75", "total": 0, "positive": 0, "negative": 0, "neutral": 0, "confidence": "无数据", "note": "权威映射中指定系列，但原评论零显式命中。", "missing": "不要从NuPhy品牌层外推评价。"}, {"brand": "LEOBOG", "name": "hi75", "total": 0, "positive": 0, "negative": 0, "neutral": 0, "confidence": "无数据", "note": "权威映射中指定系列，但原评论零显式命中。", "missing": "原文hi8se不等于hi75。"}, {"brand": "维咖（weikav）", "name": "NUT87", "total": 0, "positive": 0, "negative": 0, "neutral": 0, "confidence": "无数据", "note": "权威映射中指定系列，但原评论零显式命中。", "missing": "不要从品牌层外推评价。"}], "recommendations": [{"rank": 1, "candidate": "迈从 K99", "version": "V2/V3，优先线性轴、99键三模", "status": "预算内 · 首选", "fit": "高", "evidence": "券后常见¥359，低价可见¥274–429；评论3好评0差评1中立，有半年使用反馈。", "risk": "V3轴体与配色绑定，塑料机身质感有分歧；下单前核具体SKU。", "action": "在预算内优先试打线性轴版本，确认数字区与三模需求。"}, {"rank": 2, "candidate": "ROG 游侠2 RX", "version": "104键有线，RX红轴/键线分离版", "status": "券后临界 · 第二候选", "fit": "中高", "evidence": "券后约¥362–509，活动低点可接近预算；RX光红轴顺滑，评论3好评0差评2中立。", "risk": "常规价高于400，不支持热插拔，104键占用桌面。", "action": "只有券后≤¥450、接受有线单设备且实际试打顺滑时购买。"}, {"rank": 3, "candidate": "LEOBOG Hi75C Pro", "version": "75%三模成品，确认不是套件", "status": "预算内 · 低价备选", "fit": "中（价格）/未知（口碑）", "evidence": "常见¥199–279，远低于预算上限；铝壳、Gasket、热插拔。", "risk": "权威映射下hi75零显式评论；原文hi8se不能当作hi75证据。", "action": "只在可退换渠道试打；不要因低价替代有真实好评的K99。"}, {"rank": 4, "candidate": "NuPhy Node75", "version": "京东价约¥369", "status": "预算内但不推荐", "fit": "价格高 / 口碑低", "evidence": "价格落在预算内，且为75%三模热插拔。", "risk": "品牌评论1好评4差评1中立，品控和售后差评集中；Node75零显式评价。", "action": "暂不购买；除非后续新增Node75具体型号的可靠好评。"}, {"rank": 5, "candidate": "WOB Rainy 75", "version": "秘银简配约¥399；Standard约¥529", "status": "主流版本超预算", "fit": "中", "evidence": "简配卡在预算线，配置强；评论2好评2差评3中立。", "risk": "主流版本高于预算，且有轴座、品控和售后争议。", "action": "除非找到可靠渠道的¥400内简配并接受风险，否则跳过。"}], "avoid": [{"name": "ROG 魔导士", "reason": "Ace HFX约¥662–934，明确超预算；磁轴主要服务FPS快速触发，偶尔Dota不值得为此大幅超支。"}, {"name": "塔塔次方 EVO75 / EVO80", "reason": "主流价约¥647–819，明显超预算；EVO80还有连击差评。"}, {"name": "维咖 NUT87 / NUT108", "reason": "约¥549–749，超预算，且相应系列评价证据很少。"}, {"name": "洛斐 Flow2", "reason": "约¥877–1179，超预算一倍以上，且评论有误触负面。"}, {"name": "未指定系列的ATK / 佳达隆 / 达尔优 / VGN / Keychron", "reason": "清单没有具体型号，不能拿同品牌其他产品定价或评价代替。"}], "evidence": [{"category": "迈从K99", "brand": "迈从", "series": "K99 V3 Pro", "stance": "好评", "line": 260, "id": "6afaa997000000002d0221f2", "quote": "大F红轴圣手2代双模侧刻，已经换成迈从K99V3Pro流光冰淇淋轴了，手感提升明显，无线连接稳定，目前用了半年多没什么问题。", "interpretation": "直接比较、使用时长和连接稳定性都明确，是高质量证据。"}, {"category": "迈从K99", "brand": "迈从", "series": "K99", "stance": "好评", "line": 30, "id": "6af906d1000000002d023783", "quote": "买个迈从k99你就会想把大f卖掉了。", "interpretation": "明确推荐，但属于主观比较，没有长期使用细节。"}, {"category": "迈从K99", "brand": "迈从", "series": "K99", "stance": "中立/混合", "line": 514, "id": "6afa8ca1000000002d01b6e7", "quote": "参数啥的都挺好……手感也不错。就是塑料的我不喜欢。", "interpretation": "手感正面、材质负面，因此归为混合而非纯好评。"}, {"category": "ROG", "brand": "ROG", "series": "游侠 / RX", "stance": "好评", "line": 505, "id": "6afa7557000000002f02a9a9", "quote": "如果喜欢红轴的看 ROG 的 RX 光红轴，真丝滑……磁轴贵且不一定适合所有人。", "interpretation": "明确支持RX光红轴，同时提醒不要盲目追求磁轴。"}, {"category": "ROG", "brand": "ROG", "series": "游侠2 RX", "stance": "好评", "line": 525, "id": "6afaab83000000002f0304c0", "quote": "ROG 游侠2 RX 蓝轴……双十一300来块钱。", "interpretation": "提供历史促销价格线索，不是实时报价。"}, {"category": "ROG", "brand": "ROG", "series": "夜魔", "stance": "差评", "line": 250, "id": "6afa80b8000000002f03a933", "quote": "ROG夜魔没想到半年就WASD双击。", "interpretation": "只归夜魔，不归游侠；说明必须按系列拆分风险。"}, {"category": "狼蛛", "brand": "狼蛛 AULA", "series": "未明确", "stance": "好评", "line": 246, "id": "6afa763a000000003003e2e9", "quote": "从Filco圣手二代换到狼蛛后，感觉比之前好很多。", "interpretation": "品牌级手感好评，不能自动记到F87 Pro。"}, {"category": "狼蛛", "brand": "狼蛛 AULA", "series": "未明确", "stance": "差评", "line": 269, "id": "6afad085000000002f0316ae", "quote": "400买的狼蛛，一年多开始键偶尔失灵。", "interpretation": "耐用风险明确，但具体型号缺失。"}, {"category": "雨75", "brand": "WOB", "series": "雨75", "stance": "差评", "line": 557, "id": "6afae230000000003101e54c", "quote": "不要买雨75，品控和售后都太差了。", "interpretation": "明确差评，品控与售后是核心方面。"}, {"category": "雨75", "brand": "WOB", "series": "雨75 V1", "stance": "差评", "line": 527, "id": "6afaadcc000000002d0218df", "quote": "之前雨75 V1也出现过轴座缩水的问题。", "interpretation": "应限定到V1及相关批次，不外推所有版本。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "好评", "line": 241, "id": "6afa6cef000000002d022b8a", "quote": "2018年的大F仍能用，两次售后免费处理并电话指导保养，就这体验我是给满分。", "interpretation": "耐用和售后高质量好评，但属于老产品体验。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "好评", "line": 172, "id": "6af9d3b0000000003101ec7e", "quote": "还是比较喜欢斐尔可的手感……打字很舒服。", "interpretation": "与码字需求直接相关，但缺少具体型号。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "差评", "line": 262, "id": "6afab0e800000000320148d6", "quote": "以前显得Filco又扎实又稳定，现在真排不上号。", "interpretation": "针对当前相对价值，而非否认历史耐用性。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "差评", "line": 268, "id": "6afaceb00000000031027ddb", "quote": "办公经常断联，蓝牙连接需等待，国产200元键盘连接更快。", "interpretation": "连接体验差评，具体连接版本需核实。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "中立/混合", "line": 217, "id": "6afa4b62000000002d01a914", "quote": "大F多年浸水未坏，但声音手感对比，F是拉完了。", "interpretation": "耐用好评与声音手感差评同时存在，归为混合。"}, {"category": "NuPhy", "brand": "NuPhy", "series": "未明确", "stance": "差评", "line": 25, "id": "6af8ea66000000002f03aa5e", "quote": "两把三个月内都进入售后，一把三天即坏，另一把维修中。", "interpretation": "具体故障和售后经历，型号缺失。"}, {"category": "NuPhy", "brand": "NuPhy", "series": "未明确", "stance": "差评", "line": 38, "id": "6af93637000000002f034668", "quote": "别买 nuphy……品控一塌糊涂。", "interpretation": "明确品牌差评，但仍是单个帖子中的主观经验。"}, {"category": "EVO", "brand": "塔塔次方", "series": "EVO75", "stance": "好评", "line": 247, "id": "6afa78870000000030007635", "quote": "EVO75在质感、声音、灯光、连接、外观等方面被认为全面优于旧Filco。", "interpretation": "多方面正面比较，但不代表长期可靠性。"}, {"category": "EVO", "brand": "塔塔次方", "series": "EVO75", "stance": "差评", "line": 551, "id": "6afacbb20000000032015b8f", "quote": "因连击等问题表示不会再买他家的键盘。", "interpretation": "故障与复购意愿差评，需与同一讨论串其他回复联合判断。"}, {"category": "ROG魔导士", "brand": "ROG", "series": "魔导士", "stance": "好评", "line": 420, "id": "", "quote": "双十一500出头 可以买魔导士了 磁轴", "interpretation": "明确的价格推荐，但没有长期码字体验；应归ROG魔导士，不是ATK。"}, {"category": "ROG游侠与魔导士", "brand": "ROG", "series": "游侠 / 魔导士", "stance": "中立/混合", "line": 504, "id": "", "quote": "台式机用rog的游侠光轴，笔记本魔导士。论手感rx光红轴丝滑得一批……", "interpretation": "同一评论明确使用两个不同系列；RX光红轴好评对应游侠语境，不能挪给魔导士。"}, {"category": "Cherry轴争论", "brand": "Cherry（含轴体讨论）", "series": "Cherry轴", "stance": "好评", "line": 515, "id": "", "quote": "国产轴导致不适、回到Cherry后恢复。", "interpretation": "支持长时间码字舒适性，但属于个体生理体验。"}, {"category": "Cherry轴争论", "brand": "Cherry（含轴体讨论）", "series": "Cherry轴", "stance": "差评", "line": 491, "id": "6afa6591", "quote": "认为国产轴已爆杀Cherry。", "interpretation": "明确负面立场，措辞激烈但仍可提取产品观点。"}, {"category": "键盘优越感争论", "brand": "Filco", "series": "未明确", "stance": "中立/混合", "line": 358, "id": "6af98834", "quote": "Filco有溢价，但也不至于被几十元产品吊打。", "interpretation": "同时承认溢价与产品价值，归为混合。"}, {"category": "键盘优越感争论", "brand": "SKN", "series": "未明确", "stance": "好评", "line": 403, "id": "6af9adee", "quote": "拥有Filco、HHKB、ROG、海盗船和Cherry，但现在主用300多元的SKN。", "interpretation": "对SKN是真实使用好评，也对老品牌当前使用价值形成负面比较。"}], "arguments": [{"title": "老 Filco / Leopold / Cherry 与国产新键盘之争", "pro": "国产新键盘阵营：300元左右产品在三模、热插拔、Gasket、键帽、声音和顺滑度上已超越老款。", "con": "老品牌阵营：Filco/Cherry的寿命、可靠性和部分独特手感仍有价值。", "middle": "中间派同时承认国产轴与结构体验更好、老键盘寿命可能更好；热插拔降低了用寿命换体验的成本。", "coding": "只有明确产品立场才计入；单纯嘲讽和人身攻击不计。"}, {"title": "Cherry 轴争论", "pro": "支持方强调长时间码字舒适、指尖与关节负担较小。", "con": "反对方认为国产轴顺滑度、稳定性或性价比已经领先，并批评停滞和品控。", "middle": "技术中间派承认国产轴体验更好，也指出品控存在个体差异。", "coding": "Cherry轴评价不等于Cherry整机评价；报告保留该范围警示。"}, {"title": "键盘优越感骂战", "pro": "少数评论试图用HHKB、ROG、Filco等设备价格证明产品或人群优越。", "con": "多数回复是在反对价格划分人群、设备优越感、人身攻击和地域攻击。", "middle": "少数楼层仍能提取真实观点，例如Filco有溢价但不应被极端贬低。", "coding": "反驳优越感不等于贬低被展示的品牌，不能给HHKB/ROG/Filco自动记差评。"}], "small_samples": ["维咖、IQUNIX、VGN：各有2条明确好评线索，仍属小样本。", "赛睿：2好评、1中立，主要为旧款使用经验。", "酷冷至尊：2差评、1中立，主要反映老型号与当前产品的差距。", "洛斐：2条差评；LEOBOG：1差评、1中立。", "Keychron/渴创：1好评、1差评；小蜜蜂不能据此并入Keychron。", "Wooting：1推荐、1浏览/中立；GT80写法需复核。", "Akko：1偏好评、1中立；罗技键盘：1好评、1混合，鼠标差评未计入键盘。", "SKN、宁芝、柯芝、首席玩家Neo108等各只有1条明确正面线索。", "ATK只有品牌与磁轴泛评；ATK梵塔仅为用户自述在用，不是具体型号推荐。"], "missing": ["泛国产好评不能分摊给具体品牌：‘三百元国产随便吊打’只支持价位趋势。", "同一讨论串不等于多个独立用户：EVO75、Ducky 9008 S3、阿米洛等需降权解读。", "老产品经验不一定适用于当前批次：Filco、Ducky、ikbc、Cherry、赛睿等尤其明显。", "价格均为评论中的历史价格：359、399、300来块等未进行实时核验。", "低置信度别名：小F、雨、fl、flico、DP、GT80等需保留复核状态。", "回复上下文不完整：parent_author不是父评论ID，且两条主评论已删除。", "本报告不测量真实故障率：它反映该帖子口碑结构，而非市场随机抽样。", "原帖正文点名迈从、ikbc、瓦尔基里属于求推荐，不是好评；瓦尔基里未形成足够的品牌/系列评价证据。", "魔导士属于ROG而非ATK，ATK没有具体型号被推荐；ROG游侠、ROG魔导士、ROG夜魔是三个不同系列，不能以品牌名互相外推评价。", "按权威映射，NuPhy/Node75、LEOBOG/hi75、维咖/NUT87均为零显式命中；列表中的系列名不能反向制造评论证据。", "NUT65、hi8se、ATK梵塔、ROG夜魔、VGN98等不在本轮指定映射的具体系列层，已降为品牌层或排除。"], "annotations": [], "authoritative_mapping": [{"brand": "迈从", "series": "K99", "aliases": ["迈从", "迈丛", "mchose", "k99", "K99V3", "K99V3Pro"], "brand_counts": [7, 0, 3], "series_counts": [3, 0, 1], "status": "系列有明确评论", "note": "K99为迈从具体系列；品牌泛评不下摊。"}, {"brand": "ROG", "series": "游侠2", "aliases": ["ROG", "rog", "游侠", "游侠2", "游侠2RX", "RX光红", "游侠光轴"], "brand_counts": [6, 2, 9], "series_counts": [3, 0, 2], "status": "系列有明确评论", "note": "ROG游侠2与魔导士是两个不同系列。"}, {"brand": "ROG", "series": "魔导士", "aliases": ["魔导士"], "brand_counts": [6, 2, 9], "series_counts": [1, 0, 2], "status": "系列有明确评论", "note": "旧标签误挂ATK，已改归ROG。"}, {"brand": "ATK", "series": "未指定系列", "aliases": ["ATK", "atk", "atk梵塔"], "brand_counts": [2, 0, 1], "series_counts": null, "status": "未指定系列", "note": "没有具体ATK型号被明确推荐；梵塔仅自述在用。"}, {"brand": "WOB", "series": "Rainy 75", "aliases": ["WOB", "雨75", "雨 75", "rain75", "RAIN75", "雨75V1", "雨75V2"], "brand_counts": [2, 2, 3], "series_counts": [2, 2, 3], "status": "系列有明确评论", "note": "原“雨75/RAIN75”品牌改归WOB。"}, {"brand": "NuPhy", "series": "Node75", "aliases": ["NuPhy", "nuphy", "nuphy矮轴", "node75", "node 75"], "brand_counts": [1, 4, 1], "series_counts": [0, 0, 0], "status": "零确认命中", "note": "评论只写NuPhy品牌，没有一条明确写出Node75。"}, {"brand": "佳达隆", "series": "未指定系列", "aliases": ["佳达隆", "gateron"], "brand_counts": [1, 0, 2], "series_counts": null, "status": "未指定系列", "note": "评论主要是轴体/卫星轴讨论，非整机系列。"}, {"brand": "LEOBOG", "series": "hi75", "aliases": ["LEOBOG", "leobog", "hi75"], "brand_counts": [0, 1, 1], "series_counts": [0, 0, 0], "status": "零确认命中", "note": "原文出现hi8se，不等于hi75，不能归到hi75。"}, {"brand": "维咖（weikav）", "series": "NUT87", "aliases": ["维咖", "weikav", "nut87"], "brand_counts": [2, 0, 0], "series_counts": [0, 0, 0], "status": "零确认命中", "note": "原文零显式命中NUT87。"}, {"brand": "维咖（weikav）", "series": "NUT108", "aliases": ["维咖108", "nut108"], "brand_counts": [2, 0, 0], "series_counts": [1, 0, 0], "status": "系列有明确评论", "note": "旧NUT65不在权威清单，降为品牌层。"}, {"brand": "达尔优", "series": "未指定系列", "aliases": ["达尔优"], "brand_counts": [0, 0, 2], "series_counts": null, "status": "未指定系列", "note": "仅问询或顺带提及。"}, {"brand": "VGN", "series": "未指定系列", "aliases": ["VGN", "vgn", "vgn98"], "brand_counts": [2, 0, 0], "series_counts": null, "status": "未指定系列", "note": "VGN98不再单列系列，保留品牌层。"}, {"brand": "洛斐", "series": "Flow2", "aliases": ["洛斐", "Flow2", "flow2", "洛斐小顺"], "brand_counts": [0, 2, 0], "series_counts": [0, 1, 0], "status": "系列有明确评论", "note": "另有仅提洛斐品牌的评论，不下摊到Flow2。"}, {"brand": "小蜜蜂", "series": "Keychron", "aliases": ["小蜜蜂", "Keychron", "keychron", "渴创"], "brand_counts": [0, 0, 2], "series_counts": [0, 0, 1], "status": "系列有明确评论", "note": "按用户映射将小蜜蜂与Keychron对应。"}, {"brand": "塔塔次方", "series": "evo75", "aliases": ["塔塔次方", "evo75", "EVO75"], "brand_counts": [3, 1, 3], "series_counts": [2, 0, 1], "status": "系列有明确评论", "note": "旧口径把部分evo75误标为evo80，已按原文纠正。"}, {"brand": "塔塔次方", "series": "evo80", "aliases": ["塔塔次方", "evo80", "EVO80"], "brand_counts": [3, 1, 3], "series_counts": [1, 1, 0], "status": "系列有明确评论", "note": "EVO75/EVO80归塔塔次方并分列。"}], "price_methodology": {"as_of": "2026-11-16", "market": "中国大陆主流电商，全新成品/套件公开到手价", "budget_band": "300–400元", "status_rules": {"预算内": "常见到手价不高于400元", "券后临界": "常见到手价401–500元，或强依赖优惠券/国补", "超预算": "主流版本通常高于500元，或常规价明显高于400元", "无法按型号核价": "用户清单未指定具体型号，不能用同品牌任意产品价格代替"}, "caveat": "价格随活动、配色、轴体、套件/成品剧烈变化，只作购买筛选，不作实时报价；下单以具体SKU到手价为准。"}, "pricing": [{"brand": "迈从", "series": "K99", "price": "¥274–429（V2常见¥359–379；V3券后¥359，低价可见¥274）", "status": "预算内", "version": "V2/V3，99键三模，轴体与配色绑定", "fit": "高", "call": "首选；按券后价和轴体试打后决定", "source": "什么值得买 K99 V3 活动价；京东活动页", "reason": "评论3好评0差评1中立，带数字区、三模、热插拔，长期码字反馈较好。"}, {"brand": "ROG", "series": "游侠2", "price": "¥362–509（基础/键线分离约¥459；PBT约¥433–509；无线98约¥1465）", "status": "券后临界", "version": "104键有线RX，PBT/ABS；无线98是另一分支", "fit": "中高", "call": "第二候选；只在券后≤¥450且接受有线时买", "source": "京东消费决策中心；2026-11-11 PConline/网易活动价", "reason": "评论3好评0差评2中立，RX光红轴顺滑；不支持热插拔，104键占桌面。"}, {"brand": "ROG", "series": "魔导士", "price": "¥662–934（Ace HFX ABS/PBT国补约¥662–669；主题版¥698–736；天猫常见¥934）", "status": "超预算", "version": "Ace HFX 68键有线磁轴；75HE V2约¥979–1249", "fit": "低（码字）/中（FPS）", "call": "明确排除，除非把预算提高到至少¥650并确认确需磁轴", "source": "2026-11-11 PConline/网易；天猫ROG魔导士Ace HFX商品页", "reason": "评论1好评0差评2中立；磁轴主打Rapid Trigger与游戏，楼主偶尔Dota不值得为它超预算。"}, {"brand": "ATK", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体型号", "fit": "未知", "call": "暂不纳入购买候选", "source": "—", "reason": "原帖只有品牌/磁轴泛评，没有具体型号被明确推荐。"}, {"brand": "WOB", "series": "Rainy 75", "price": "¥399（秘银简配）–¥587；Standard约¥529，双11常见¥482–569", "status": "超预算（主流版本）", "version": "Lite/Standard/Pro，75%铝合金三模", "fit": "中", "call": "简配卡线但主流版本超预算；若有¥400内简配且接受品控风险再考虑", "source": "天猫WOB旗舰店；什么值得买双11铝键盘清单", "reason": "评论2好评2差评3中立，V1轴座、品控和售后争议明显。"}, {"brand": "NuPhy", "series": "Node75", "price": "¥369–488（京东约¥369，常卖¥399；天猫约¥488）", "status": "预算内（京东价）", "version": "低轴84键/高轴82键，三模热插拔", "fit": "价格高 / 口碑低", "call": "价格符合但暂不推荐；先解决品控差评疑虑", "source": "京东NuPhy旗舰店 Node75商品页", "reason": "品牌评论1好评4差评1中立；Node75零显式评价，不能因价格合适忽略品控信号。"}, {"brand": "佳达隆", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定整机型号", "fit": "未知", "call": "不纳入整机候选", "source": "—", "reason": "评论主要是轴体/卫星轴讨论，不是整机。"}, {"brand": "LEOBOG", "series": "hi75", "price": "¥118–279（Hi75有线¥188–219；Hi75C/Pro三模¥199–279；部分低价为套件）", "status": "预算内", "version": "75%铝壳，套件与成品混杂", "fit": "中高（价格）/未知（口碑）", "call": "低价备选；必须确认是成品且实际试打", "source": "京东LEOBOG商品页；京东75配列选购指南；什么值得买双11清单", "reason": "价格余量最大，但hi75零显式评论，原文hi8se不能当hi75证据。"}, {"brand": "维咖（weikav）", "series": "NUT87", "price": "¥549–709", "status": "超预算", "version": "TKL铝壳三模热插拔", "fit": "中（配置）/低（预算）", "call": "排除；除非预算提高约40%", "source": "中关村在线维咖键盘排行榜", "reason": "评论层NUT87零显式命中，无法用品牌2条好评替代。"}, {"brand": "维咖（weikav）", "series": "NUT108", "price": "¥579–749（套件约¥579–589；成品¥679–749）", "status": "超预算", "version": "108键铝壳三模；成品不可热插拔", "fit": "低", "call": "排除；且成品不可换轴", "source": "京东维咖NUT108成品页；中关村在线排行榜", "reason": "评论仅1条明确好评，价格明显超预算。"}, {"brand": "达尔优", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体型号", "fit": "未知", "call": "暂不纳入", "source": "—", "reason": "仅2条品牌层中立评论。"}, {"brand": "VGN", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体型号", "fit": "未知", "call": "暂不纳入", "source": "—", "reason": "品牌2条好评，但没有指定型号。"}, {"brand": "洛斐", "series": "Flow2", "price": "¥877–1179（淘宝约¥877；京东自营约¥949；官方旗舰约¥1179）", "status": "超预算", "version": "68/84/100键矮轴铝合金三模", "fit": "低（预算）/中（打字）", "call": "排除；超预算超过一倍且评论有误触负面", "source": "京东洛斐Flow2商品页；Lofree海外价目参考", "reason": "系列评论0好评1差评0中立。"}, {"brand": "小蜜蜂", "series": "Keychron", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体Keychron型号", "fit": "未知", "call": "暂不纳入", "source": "—", "reason": "按用户映射对应品牌，但Keychron不同型号价差很大，不能泛指。"}, {"brand": "塔塔次方", "series": "evo75", "price": "¥720–819（京东约¥819，活动/8.8折约¥720.72）", "status": "超预算", "version": "75% 80键铝合金三模", "fit": "中", "call": "排除；评论虽转好但价格超预算近一倍", "source": "天猫塔塔次方EVO75商品页；京东EVO75商品页；什么值得买双11清单", "reason": "新口径系列2好评0差评1中立，但价格远超预算。"}, {"brand": "塔塔次方", "series": "evo80", "price": "¥647–819（京东约¥737–819，活动低至¥647.75）", "status": "超预算", "version": "80% 88键铝合金三模", "fit": "中", "call": "排除；且有连击差评和批次风险", "source": "京东EVO80商品页；什么值得买双11清单", "reason": "系列1好评1差评0中立；价格高于预算。"}], "pending_annotations": []};
+
+const REPORT_DATA = {"meta": {"title": "小红书键盘求推荐评论｜购买决策分析", "source_file": "xhs-keyboard-comments-full.csv", "source_url": "https://www.xiaohongshu.com/explore/6af874f2000000002b01fcc7?xsec_token=CBARLqpEVXSVqGgzkWc_2IT8F_aIQNX2LsYPO41Ou1BaE=&xsec_source=pc_share&source=webshare", "snapshot": "2026-11-16 20:06 左右采集；评论最晚至 2026-11-16 19:35（页面时区）", "generated_at": "2026-11-16 20:52 GMT+8", "baseline_cutoff": "2026-11-16T19:35:00+08:00", "comments_total": 565, "main_comments": 272, "replies": 293, "usable_text": 563, "deleted": 2, "duplicate_ids": 0, "missing_date": 22, "budget": "约 300–400 元", "usage": "主要码字，偶尔打 Dota，重视打字舒服，不太在乎声音", "version": "1.3", "revision": "2026-11-16 21:50 GMT+8：加入中国大陆电商当前售价核验与预算适配重评估。", "last_render": "2026-11-16 22:16:16 GMT+8", "state_initialized": false, "known_comment_ids": 0, "accepted_new_annotations": 0, "pending_review": 0, "rules_version": 33}, "original_post": {"title": "求推荐键盘！谢谢", "verified_at": "2026-11-16 21:16 GMT+8", "summary": "原帖正文确认：楼主预算300–400元，主要码字，偶尔打Dota；因品牌和轴体选择过多而求推荐，并询问Filco现状、磁轴以及迈从、ikbc、瓦尔基里等品牌。", "coding_note": "楼主点名品牌属于求推荐，不计为品牌好评；网页本次仅用于交叉核验正文和可见上下文，完整评论统计仍以CSV评论ID为准。", "mentioned_candidates": ["迈从", "ikbc", "瓦尔基里"], "topics": ["Filco现状", "磁轴是否适合", "码字手感", "偶尔Dota"]}, "brands": [{"name": "Filco（含 MINILA）", "total": 146, "positive": 40, "negative": 53, "neutral": 53, "scope": "整机；含圣手、忍者、MINILA 等系列及品牌泛评", "coverage": "低：仅约25条可可靠落到具体系列", "note": "耐用和售后仍有好评，但当前手感、功能、连接与性价比争议大。"}, {"name": "Cherry（含轴体讨论）", "total": 62, "positive": 23, "negative": 24, "neutral": 15, "scope": "整机与轴体混合，不能直接视作整机口碑", "coverage": "低：大量内容为轴体争论", "note": "码字舒适性有支持，停滞、品控与性价比有批评。"}, {"name": "Leopold", "total": 26, "positive": 6, "negative": 9, "neutral": 11, "scope": "整机；大量为“大L”品牌泛评", "coverage": "低：多数没有具体型号", "note": "键帽与历史体验获认可，当前手感和购买价值分化。"}, {"name": "ROG", "total": 17, "positive": 6, "negative": 2, "neutral": 9, "scope": "整机；游侠2、魔导士与品牌泛评", "coverage": "中：游侠2 5条、魔导士3条，其余为品牌泛评", "note": "游侠2、魔导士、夜魔必须分列。"}, {"name": "迈从", "total": 10, "positive": 7, "negative": 0, "neutral": 3, "scope": "整机与K99系列", "coverage": "品牌10条；K99系列4条显式命中", "note": "按权威映射，泛国产/品牌泛评不外推到K99。"}, {"name": "ikbc", "total": 10, "positive": 4, "negative": 1, "neutral": 5, "scope": "整机及历史使用经验", "coverage": "低：具体系列不足", "note": "整体偏正面，但老型号经验较多。"}, {"name": "Ducky / 魔力鸭", "total": 10, "positive": 6, "negative": 2, "neutral": 2, "scope": "整机及旧款使用经验", "coverage": "低：9008 S3评价来自同一作者", "note": "旧款耐用评价好，不能等同当前产品竞争力。"}, {"name": "塔塔次方", "total": 7, "positive": 3, "negative": 1, "neutral": 3, "scope": "整机；evo75/evo80分列", "coverage": "高：evo75 3条、evo80 2条", "note": "旧口径存在evo75误标evo80，已纠正。"}, {"name": "阿米洛", "total": 9, "positive": 4, "negative": 2, "neutral": 3, "scope": "整机，含新老款比较", "coverage": "低：型号信息不足", "note": "老款体验较好，新款用料退步的观点需保留。"}, {"name": "HHKB", "total": 8, "positive": 2, "negative": 3, "neutral": 3, "scope": "整机；部分来自优越感争论", "coverage": "低：具体系列不足", "note": "真实产品立场与对优越感的反驳已尽量分开。"}, {"name": "NuPhy", "total": 6, "positive": 1, "negative": 4, "neutral": 1, "scope": "整机品牌泛评", "coverage": "缺失：Node75零显式命中", "note": "品控与售后差评集中。"}, {"name": "Realforce", "total": 6, "positive": 5, "negative": 0, "neutral": 1, "scope": "静电容整机；generic静电容评价未强行归入", "coverage": "低：R3仅1条明确评价", "note": "码字与耐用口碑好，但明显超出预算。"}, {"name": "ATK", "total": 3, "positive": 2, "negative": 0, "neutral": 1, "scope": "品牌与磁轴泛评；未指定系列", "coverage": "缺失：没有具体型号推荐", "note": "梵塔仅为用户自述在用，不构成推荐。"}, {"name": "狼蛛 AULA", "total": 5, "positive": 4, "negative": 1, "neutral": 0, "scope": "整机，含F87 Pro及品牌其他型号", "coverage": "低：F87 Pro仅1条明确评价", "note": "手感比较有好评，也有一条使用一年多后按键偶尔失灵。"}, {"name": "海盗船", "total": 5, "positive": 1, "negative": 1, "neutral": 3, "scope": "整机", "coverage": "低：系列型号不足", "note": "样本小，暂不能形成稳定结论。"}, {"name": "佳达隆", "total": 3, "positive": 1, "negative": 0, "neutral": 2, "scope": "轴体/卫星轴讨论；未指定系列", "coverage": "缺失：无整机系列", "note": "不是整机品牌评分。"}, {"name": "达尔优", "total": 2, "positive": 0, "negative": 0, "neutral": 2, "scope": "整机品牌泛评；未指定系列", "coverage": "缺失：仅问询或顺带提及", "note": "样本过小。"}], "series": [{"brand": "迈从", "name": "K99", "total": 4, "positive": 3, "negative": 0, "neutral": 1, "confidence": "低", "note": "有半年使用、手感和无线稳定好评；塑料机身有个别不喜欢。", "missing": "品牌层另有泛评，不下摊；V3/V3 Pro版本需核实。"}, {"brand": "ROG", "name": "游侠2", "total": 5, "positive": 3, "negative": 0, "neutral": 2, "confidence": "低", "note": "RX光红轴顺滑、游侠2有线版有价格线索。", "missing": "与ROG魔导士是不同系列；价格来自历史评论。"}, {"brand": "狼蛛 AULA", "name": "F87 Pro", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "有明确推荐。", "missing": "仅1条；品牌其他型号的失灵问题不能直接归到F87 Pro。"}, {"brand": "WOB", "name": "Rainy 75", "total": 7, "positive": 2, "negative": 2, "neutral": 3, "confidence": "低", "note": "手感与性价比推荐，同时存在V1轴座、品控和售后问题。", "missing": "版本与批次需核实。"}, {"brand": "ROG", "name": "魔导士", "total": 3, "positive": 1, "negative": 0, "neutral": 2, "confidence": "很低", "note": "有价格推荐与自述在用。", "missing": "长期码字、具体版本与价格均不足。"}, {"brand": "塔塔次方", "name": "evo75", "total": 3, "positive": 2, "negative": 0, "neutral": 1, "confidence": "低", "note": "打字轻、可玩OSU，另有全面优于旧Filco的主观评价。", "missing": "旧口径部分evo75误标evo80；样本小。"}, {"brand": "塔塔次方", "name": "evo80", "total": 2, "positive": 1, "negative": 1, "neutral": 0, "confidence": "很低", "note": "有正面体验，也有半年后多键连击差评。", "missing": "样本过小，需核实批次与售后。"}, {"brand": "Filco", "name": "圣手 / 圣手二代", "total": 16, "positive": 4, "negative": 6, "neutral": 6, "confidence": "中低", "note": "耐用与售后有好评；手感、功能、连接和当前性价比分化。", "missing": "不同年份、连接版本与轴体未完全拆分。"}, {"brand": "Filco", "name": "忍者 / 忍者二代", "total": 5, "positive": 2, "negative": 2, "neutral": 1, "confidence": "低", "note": "多年耐用与被国产新型号超越的评价并存。", "missing": "样本小，旧款经验占比不明。"}, {"brand": "Filco", "name": "MINILA", "total": 4, "positive": 1, "negative": 1, "neutral": 2, "confidence": "很低", "note": "耐用和便携布局有好评。", "missing": "仅4条，具体代次不足。"}, {"brand": "Filco", "name": "980M", "total": 1, "positive": 0, "negative": 1, "neutral": 0, "confidence": "很低", "note": "在历史比较中被国产新套件超越。", "missing": "单条历史比较，不能外推所有980M。"}, {"brand": "Leopold", "name": "NANA / OE NANA", "total": 3, "positive": 1, "negative": 2, "neutral": 0, "confidence": "很低", "note": "有主力键盘好评，也有手感落后评价。", "missing": "版本与使用时长不明。"}, {"brand": "Leopold", "name": "FC750", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "好评主要针对键帽。", "missing": "不足以证明整机当前购买价值。"}, {"brand": "Cherry", "name": "MX8.0", "total": 5, "positive": 1, "negative": 2, "neutral": 2, "confidence": "低", "note": "耐用、收藏价值与性价比评价冲突。", "missing": "需与Cherry轴体评价分开。"}, {"brand": "Cherry", "name": "MX8.3", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "单条办公好评。", "missing": "仅1条，无长期耐用信息。"}, {"brand": "Ducky / 魔力鸭", "name": "9008 S3", "total": 2, "positive": 2, "negative": 0, "neutral": 0, "confidence": "很低", "note": "两条均为正面旧款使用经验。", "missing": "两条来自同一作者，不是两个独立用户。"}, {"brand": "Realforce", "name": "R3", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "码字最多、手感好。", "missing": "单条且明确偏贵，不符合预算。"}, {"brand": "维咖（weikav）", "name": "NUT108", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "明确表示喜欢铝坨坨并自用维咖108。", "missing": "仅1条，不是强推荐。"}, {"brand": "首席玩家", "name": "Neo108", "total": 1, "positive": 1, "negative": 0, "neutral": 0, "confidence": "很低", "note": "打字很舒服。", "missing": "单条，无长期耐用信息。"}, {"brand": "LEOBOG", "name": "Hi8SE", "total": 1, "positive": 0, "negative": 0, "neutral": 1, "confidence": "很低", "note": "仅表示正在使用并询问其他产品。", "missing": "不构成明确推荐。"}, {"brand": "NuPhy", "name": "Node75", "total": 0, "positive": 0, "negative": 0, "neutral": 0, "confidence": "无数据", "note": "权威映射中指定系列，但原评论零显式命中。", "missing": "不要从NuPhy品牌层外推评价。"}, {"brand": "LEOBOG", "name": "hi75", "total": 0, "positive": 0, "negative": 0, "neutral": 0, "confidence": "无数据", "note": "权威映射中指定系列，但原评论零显式命中。", "missing": "原文hi8se不等于hi75。"}, {"brand": "维咖（weikav）", "name": "NUT87", "total": 0, "positive": 0, "negative": 0, "neutral": 0, "confidence": "无数据", "note": "权威映射中指定系列，但原评论零显式命中。", "missing": "不要从品牌层外推评价。"}], "recommendations": [{"rank": 1, "candidate": "迈从 K99", "version": "V2/V3，优先线性轴、99键三模", "status": "预算内 · 首选", "fit": "高", "evidence": "券后常见¥359，低价可见¥274–429；评论3好评0差评1中立，有半年使用反馈。", "risk": "V3轴体与配色绑定，塑料机身质感有分歧；下单前核具体SKU。", "action": "在预算内优先试打线性轴版本，确认数字区与三模需求。"}, {"rank": 2, "candidate": "ROG 游侠2 RX", "version": "104键有线，RX红轴/键线分离版", "status": "券后临界 · 第二候选", "fit": "中高", "evidence": "券后约¥362–509，活动低点可接近预算；RX光红轴顺滑，评论3好评0差评2中立。", "risk": "常规价高于400，不支持热插拔，104键占用桌面。", "action": "只有券后≤¥450、接受有线单设备且实际试打顺滑时购买。"}, {"rank": 3, "candidate": "LEOBOG Hi75C Pro", "version": "75%三模成品，确认不是套件", "status": "预算内 · 低价备选", "fit": "中（价格）/未知（口碑）", "evidence": "常见¥199–279，远低于预算上限；铝壳、Gasket、热插拔。", "risk": "权威映射下hi75零显式评论；原文hi8se不能当作hi75证据。", "action": "只在可退换渠道试打；不要因低价替代有真实好评的K99。"}, {"rank": 4, "candidate": "NuPhy Node75", "version": "京东价约¥369", "status": "预算内但不推荐", "fit": "价格高 / 口碑低", "evidence": "价格落在预算内，且为75%三模热插拔。", "risk": "品牌评论1好评4差评1中立，品控和售后差评集中；Node75零显式评价。", "action": "暂不购买；除非后续新增Node75具体型号的可靠好评。"}, {"rank": 5, "candidate": "WOB Rainy 75", "version": "秘银简配约¥399；Standard约¥529", "status": "主流版本超预算", "fit": "中", "evidence": "简配卡在预算线，配置强；评论2好评2差评3中立。", "risk": "主流版本高于预算，且有轴座、品控和售后争议。", "action": "除非找到可靠渠道的¥400内简配并接受风险，否则跳过。"}], "avoid": [{"name": "ROG 魔导士", "reason": "Ace HFX约¥662–934，明确超预算；磁轴主要服务FPS快速触发，偶尔Dota不值得为此大幅超支。"}, {"name": "塔塔次方 EVO75 / EVO80", "reason": "主流价约¥647–819，明显超预算；EVO80还有连击差评。"}, {"name": "维咖 NUT87 / NUT108", "reason": "约¥549–749，超预算，且相应系列评价证据很少。"}, {"name": "洛斐 Flow2", "reason": "约¥877–1179，超预算一倍以上，且评论有误触负面。"}, {"name": "未指定系列的ATK / 佳达隆 / 达尔优 / VGN / Keychron", "reason": "清单没有具体型号，不能拿同品牌其他产品定价或评价代替。"}], "evidence": [{"category": "迈从K99", "brand": "迈从", "series": "K99 V3 Pro", "stance": "好评", "line": 260, "id": "6afaa997000000002d0221f2", "quote": "大F红轴圣手2代双模侧刻，已经换成迈从K99V3Pro流光冰淇淋轴了，手感提升明显，无线连接稳定，目前用了半年多没什么问题。", "interpretation": "直接比较、使用时长和连接稳定性都明确，是高质量证据。"}, {"category": "迈从K99", "brand": "迈从", "series": "K99", "stance": "好评", "line": 30, "id": "6af906d1000000002d023783", "quote": "买个迈从k99你就会想把大f卖掉了。", "interpretation": "明确推荐，但属于主观比较，没有长期使用细节。"}, {"category": "迈从K99", "brand": "迈从", "series": "K99", "stance": "中立/混合", "line": 514, "id": "6afa8ca1000000002d01b6e7", "quote": "参数啥的都挺好……手感也不错。就是塑料的我不喜欢。", "interpretation": "手感正面、材质负面，因此归为混合而非纯好评。"}, {"category": "ROG", "brand": "ROG", "series": "游侠 / RX", "stance": "好评", "line": 505, "id": "6afa7557000000002f02a9a9", "quote": "如果喜欢红轴的看 ROG 的 RX 光红轴，真丝滑……磁轴贵且不一定适合所有人。", "interpretation": "明确支持RX光红轴，同时提醒不要盲目追求磁轴。"}, {"category": "ROG", "brand": "ROG", "series": "游侠2 RX", "stance": "好评", "line": 525, "id": "6afaab83000000002f0304c0", "quote": "ROG 游侠2 RX 蓝轴……双十一300来块钱。", "interpretation": "提供历史促销价格线索，不是实时报价。"}, {"category": "ROG", "brand": "ROG", "series": "夜魔", "stance": "差评", "line": 250, "id": "6afa80b8000000002f03a933", "quote": "ROG夜魔没想到半年就WASD双击。", "interpretation": "只归夜魔，不归游侠；说明必须按系列拆分风险。"}, {"category": "狼蛛", "brand": "狼蛛 AULA", "series": "未明确", "stance": "好评", "line": 246, "id": "6afa763a000000003003e2e9", "quote": "从Filco圣手二代换到狼蛛后，感觉比之前好很多。", "interpretation": "品牌级手感好评，不能自动记到F87 Pro。"}, {"category": "狼蛛", "brand": "狼蛛 AULA", "series": "未明确", "stance": "差评", "line": 269, "id": "6afad085000000002f0316ae", "quote": "400买的狼蛛，一年多开始键偶尔失灵。", "interpretation": "耐用风险明确，但具体型号缺失。"}, {"category": "雨75", "brand": "WOB", "series": "雨75", "stance": "差评", "line": 557, "id": "6afae230000000003101e54c", "quote": "不要买雨75，品控和售后都太差了。", "interpretation": "明确差评，品控与售后是核心方面。"}, {"category": "雨75", "brand": "WOB", "series": "雨75 V1", "stance": "差评", "line": 527, "id": "6afaadcc000000002d0218df", "quote": "之前雨75 V1也出现过轴座缩水的问题。", "interpretation": "应限定到V1及相关批次，不外推所有版本。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "好评", "line": 241, "id": "6afa6cef000000002d022b8a", "quote": "2018年的大F仍能用，两次售后免费处理并电话指导保养，就这体验我是给满分。", "interpretation": "耐用和售后高质量好评，但属于老产品体验。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "好评", "line": 172, "id": "6af9d3b0000000003101ec7e", "quote": "还是比较喜欢斐尔可的手感……打字很舒服。", "interpretation": "与码字需求直接相关，但缺少具体型号。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "差评", "line": 262, "id": "6afab0e800000000320148d6", "quote": "以前显得Filco又扎实又稳定，现在真排不上号。", "interpretation": "针对当前相对价值，而非否认历史耐用性。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "差评", "line": 268, "id": "6afaceb00000000031027ddb", "quote": "办公经常断联，蓝牙连接需等待，国产200元键盘连接更快。", "interpretation": "连接体验差评，具体连接版本需核实。"}, {"category": "Filco", "brand": "Filco", "series": "未明确", "stance": "中立/混合", "line": 217, "id": "6afa4b62000000002d01a914", "quote": "大F多年浸水未坏，但声音手感对比，F是拉完了。", "interpretation": "耐用好评与声音手感差评同时存在，归为混合。"}, {"category": "NuPhy", "brand": "NuPhy", "series": "未明确", "stance": "差评", "line": 25, "id": "6af8ea66000000002f03aa5e", "quote": "两把三个月内都进入售后，一把三天即坏，另一把维修中。", "interpretation": "具体故障和售后经历，型号缺失。"}, {"category": "NuPhy", "brand": "NuPhy", "series": "未明确", "stance": "差评", "line": 38, "id": "6af93637000000002f034668", "quote": "别买 nuphy……品控一塌糊涂。", "interpretation": "明确品牌差评，但仍是单个帖子中的主观经验。"}, {"category": "EVO", "brand": "塔塔次方", "series": "EVO75", "stance": "好评", "line": 247, "id": "6afa78870000000030007635", "quote": "EVO75在质感、声音、灯光、连接、外观等方面被认为全面优于旧Filco。", "interpretation": "多方面正面比较，但不代表长期可靠性。"}, {"category": "EVO", "brand": "塔塔次方", "series": "EVO75", "stance": "差评", "line": 551, "id": "6afacbb20000000032015b8f", "quote": "因连击等问题表示不会再买他家的键盘。", "interpretation": "故障与复购意愿差评，需与同一讨论串其他回复联合判断。"}, {"category": "ROG魔导士", "brand": "ROG", "series": "魔导士", "stance": "好评", "line": 420, "id": "", "quote": "双十一500出头 可以买魔导士了 磁轴", "interpretation": "明确的价格推荐，但没有长期码字体验；应归ROG魔导士，不是ATK。"}, {"category": "ROG游侠与魔导士", "brand": "ROG", "series": "游侠 / 魔导士", "stance": "中立/混合", "line": 504, "id": "", "quote": "台式机用rog的游侠光轴，笔记本魔导士。论手感rx光红轴丝滑得一批……", "interpretation": "同一评论明确使用两个不同系列；RX光红轴好评对应游侠语境，不能挪给魔导士。"}, {"category": "Cherry轴争论", "brand": "Cherry（含轴体讨论）", "series": "Cherry轴", "stance": "好评", "line": 515, "id": "", "quote": "国产轴导致不适、回到Cherry后恢复。", "interpretation": "支持长时间码字舒适性，但属于个体生理体验。"}, {"category": "Cherry轴争论", "brand": "Cherry（含轴体讨论）", "series": "Cherry轴", "stance": "差评", "line": 491, "id": "6afa6591", "quote": "认为国产轴已爆杀Cherry。", "interpretation": "明确负面立场，措辞激烈但仍可提取产品观点。"}, {"category": "键盘优越感争论", "brand": "Filco", "series": "未明确", "stance": "中立/混合", "line": 358, "id": "6af98834", "quote": "Filco有溢价，但也不至于被几十元产品吊打。", "interpretation": "同时承认溢价与产品价值，归为混合。"}, {"category": "键盘优越感争论", "brand": "SKN", "series": "未明确", "stance": "好评", "line": 403, "id": "6af9adee", "quote": "拥有Filco、HHKB、ROG、海盗船和Cherry，但现在主用300多元的SKN。", "interpretation": "对SKN是真实使用好评，也对老品牌当前使用价值形成负面比较。"}], "arguments": [{"title": "老 Filco / Leopold / Cherry 与国产新键盘之争", "pro": "国产新键盘阵营：300元左右产品在三模、热插拔、Gasket、键帽、声音和顺滑度上已超越老款。", "con": "老品牌阵营：Filco/Cherry的寿命、可靠性和部分独特手感仍有价值。", "middle": "中间派同时承认国产轴与结构体验更好、老键盘寿命可能更好；热插拔降低了用寿命换体验的成本。", "coding": "只有明确产品立场才计入；单纯嘲讽和人身攻击不计。"}, {"title": "Cherry 轴争论", "pro": "支持方强调长时间码字舒适、指尖与关节负担较小。", "con": "反对方认为国产轴顺滑度、稳定性或性价比已经领先，并批评停滞和品控。", "middle": "技术中间派承认国产轴体验更好，也指出品控存在个体差异。", "coding": "Cherry轴评价不等于Cherry整机评价；报告保留该范围警示。"}, {"title": "键盘优越感骂战", "pro": "少数评论试图用HHKB、ROG、Filco等设备价格证明产品或人群优越。", "con": "多数回复是在反对价格划分人群、设备优越感、人身攻击和地域攻击。", "middle": "少数楼层仍能提取真实观点，例如Filco有溢价但不应被极端贬低。", "coding": "反驳优越感不等于贬低被展示的品牌，不能给HHKB/ROG/Filco自动记差评。"}], "small_samples": ["维咖、IQUNIX、VGN：各有2条明确好评线索，仍属小样本。", "赛睿：2好评、1中立，主要为旧款使用经验。", "酷冷至尊：2差评、1中立，主要反映老型号与当前产品的差距。", "洛斐：2条差评；LEOBOG：1差评、1中立。", "Keychron/渴创：1好评、1差评；小蜜蜂不能据此并入Keychron。", "Wooting：1推荐、1浏览/中立；GT80写法需复核。", "Akko：1偏好评、1中立；罗技键盘：1好评、1混合，鼠标差评未计入键盘。", "SKN、宁芝、柯芝、首席玩家Neo108等各只有1条明确正面线索。", "ATK只有品牌与磁轴泛评；ATK梵塔仅为用户自述在用，不是具体型号推荐。"], "missing": ["泛国产好评不能分摊给具体品牌：‘三百元国产随便吊打’只支持价位趋势。", "同一讨论串不等于多个独立用户：EVO75、Ducky 9008 S3、阿米洛等需降权解读。", "老产品经验不一定适用于当前批次：Filco、Ducky、ikbc、Cherry、赛睿等尤其明显。", "价格均为评论中的历史价格：359、399、300来块等未进行实时核验。", "低置信度别名：小F、雨、fl、flico、DP、GT80等需保留复核状态。", "回复上下文不完整：parent_author不是父评论ID，且两条主评论已删除。", "本报告不测量真实故障率：它反映该帖子口碑结构，而非市场随机抽样。", "原帖正文点名迈从、ikbc、瓦尔基里属于求推荐，不是好评；瓦尔基里未形成足够的品牌/系列评价证据。", "魔导士属于ROG而非ATK，ATK没有具体型号被推荐；ROG游侠、ROG魔导士、ROG夜魔是三个不同系列，不能以品牌名互相外推评价。", "按权威映射，NuPhy/Node75、LEOBOG/hi75、维咖/NUT87均为零显式命中；列表中的系列名不能反向制造评论证据。", "NUT65、hi8se、ATK梵塔、ROG夜魔、VGN98等不在本轮指定映射的具体系列层，已降为品牌层或排除。"], "annotations": [], "authoritative_mapping": [{"brand": "迈从", "series": "K99", "aliases": ["迈从", "迈丛", "mchose", "k99", "K99V3", "K99V3Pro"], "brand_counts": [7, 0, 3], "series_counts": [3, 0, 1], "status": "系列有明确评论", "note": "K99为迈从具体系列；品牌泛评不下摊。"}, {"brand": "ROG", "series": "游侠2", "aliases": ["ROG", "rog", "游侠", "游侠2", "游侠2RX", "RX光红", "游侠光轴"], "brand_counts": [6, 2, 9], "series_counts": [3, 0, 2], "status": "系列有明确评论", "note": "ROG游侠2与魔导士是两个不同系列。"}, {"brand": "ROG", "series": "魔导士", "aliases": ["魔导士"], "brand_counts": [6, 2, 9], "series_counts": [1, 0, 2], "status": "系列有明确评论", "note": "旧标签误挂ATK，已改归ROG。"}, {"brand": "ATK", "series": "未指定系列", "aliases": ["ATK", "atk", "atk梵塔"], "brand_counts": [2, 0, 1], "series_counts": null, "status": "未指定系列", "note": "没有具体ATK型号被明确推荐；梵塔仅自述在用。"}, {"brand": "WOB", "series": "Rainy 75", "aliases": ["WOB", "雨75", "雨 75", "rain75", "RAIN75", "雨75V1", "雨75V2"], "brand_counts": [2, 2, 3], "series_counts": [2, 2, 3], "status": "系列有明确评论", "note": "原“雨75/RAIN75”品牌改归WOB。"}, {"brand": "NuPhy", "series": "Node75", "aliases": ["NuPhy", "nuphy", "nuphy矮轴", "node75", "node 75"], "brand_counts": [1, 4, 1], "series_counts": [0, 0, 0], "status": "零确认命中", "note": "评论只写NuPhy品牌，没有一条明确写出Node75。"}, {"brand": "佳达隆", "series": "未指定系列", "aliases": ["佳达隆", "gateron"], "brand_counts": [1, 0, 2], "series_counts": null, "status": "未指定系列", "note": "评论主要是轴体/卫星轴讨论，非整机系列。"}, {"brand": "LEOBOG", "series": "hi75", "aliases": ["LEOBOG", "leobog", "hi75"], "brand_counts": [0, 1, 1], "series_counts": [0, 0, 0], "status": "零确认命中", "note": "原文出现hi8se，不等于hi75，不能归到hi75。"}, {"brand": "维咖（weikav）", "series": "NUT87", "aliases": ["维咖", "weikav", "nut87"], "brand_counts": [2, 0, 0], "series_counts": [0, 0, 0], "status": "零确认命中", "note": "原文零显式命中NUT87。"}, {"brand": "维咖（weikav）", "series": "NUT108", "aliases": ["维咖108", "nut108"], "brand_counts": [2, 0, 0], "series_counts": [1, 0, 0], "status": "系列有明确评论", "note": "旧NUT65不在权威清单，降为品牌层。"}, {"brand": "达尔优", "series": "未指定系列", "aliases": ["达尔优"], "brand_counts": [0, 0, 2], "series_counts": null, "status": "未指定系列", "note": "仅问询或顺带提及。"}, {"brand": "VGN", "series": "未指定系列", "aliases": ["VGN", "vgn", "vgn98"], "brand_counts": [2, 0, 0], "series_counts": null, "status": "未指定系列", "note": "VGN98不再单列系列，保留品牌层。"}, {"brand": "洛斐", "series": "Flow2", "aliases": ["洛斐", "Flow2", "flow2", "洛斐小顺"], "brand_counts": [0, 2, 0], "series_counts": [0, 1, 0], "status": "系列有明确评论", "note": "另有仅提洛斐品牌的评论，不下摊到Flow2。"}, {"brand": "小蜜蜂", "series": "Keychron", "aliases": ["小蜜蜂", "Keychron", "keychron", "渴创"], "brand_counts": [0, 0, 2], "series_counts": [0, 0, 1], "status": "系列有明确评论", "note": "按用户映射将小蜜蜂与Keychron对应。"}, {"brand": "塔塔次方", "series": "evo75", "aliases": ["塔塔次方", "evo75", "EVO75"], "brand_counts": [3, 1, 3], "series_counts": [2, 0, 1], "status": "系列有明确评论", "note": "旧口径把部分evo75误标为evo80，已按原文纠正。"}, {"brand": "塔塔次方", "series": "evo80", "aliases": ["塔塔次方", "evo80", "EVO80"], "brand_counts": [3, 1, 3], "series_counts": [1, 1, 0], "status": "系列有明确评论", "note": "EVO75/EVO80归塔塔次方并分列。"}], "price_methodology": {"as_of": "2026-11-16", "market": "中国大陆主流电商，全新成品/套件公开到手价", "budget_band": "300–400元", "status_rules": {"预算内": "常见到手价不高于400元", "券后临界": "常见到手价401–500元，或强依赖优惠券/国补", "超预算": "主流版本通常高于500元，或常规价明显高于400元", "无法按型号核价": "用户清单未指定具体型号，不能用同品牌任意产品价格代替"}, "caveat": "价格随活动、配色、轴体、套件/成品剧烈变化，只作购买筛选，不作实时报价；下单以具体SKU到手价为准。"}, "pricing": [{"brand": "迈从", "series": "K99", "price": "¥274–429（V2常见¥359–379；V3券后¥359，低价可见¥274）", "status": "预算内", "version": "V2/V3，99键三模，轴体与配色绑定", "fit": "高", "call": "首选；按券后价和轴体试打后决定", "source": "什么值得买 K99 V3 活动价；京东活动页", "reason": "评论3好评0差评1中立，带数字区、三模、热插拔，长期码字反馈较好。"}, {"brand": "ROG", "series": "游侠2", "price": "¥362–509（基础/键线分离约¥459；PBT约¥433–509；无线98约¥1465）", "status": "券后临界", "version": "104键有线RX，PBT/ABS；无线98是另一分支", "fit": "中高", "call": "第二候选；只在券后≤¥450且接受有线时买", "source": "京东消费决策中心；2026-11-11 PConline/网易活动价", "reason": "评论3好评0差评2中立，RX光红轴顺滑；不支持热插拔，104键占桌面。"}, {"brand": "ROG", "series": "魔导士", "price": "¥662–934（Ace HFX ABS/PBT国补约¥662–669；主题版¥698–736；天猫常见¥934）", "status": "超预算", "version": "Ace HFX 68键有线磁轴；75HE V2约¥979–1249", "fit": "低（码字）/中（FPS）", "call": "明确排除，除非把预算提高到至少¥650并确认确需磁轴", "source": "2026-11-11 PConline/网易；天猫ROG魔导士Ace HFX商品页", "reason": "评论1好评0差评2中立；磁轴主打Rapid Trigger与游戏，楼主偶尔Dota不值得为它超预算。"}, {"brand": "ATK", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体型号", "fit": "未知", "call": "暂不纳入购买候选", "source": "—", "reason": "原帖只有品牌/磁轴泛评，没有具体型号被明确推荐。"}, {"brand": "WOB", "series": "Rainy 75", "price": "¥399（秘银简配）–¥587；Standard约¥529，双11常见¥482–569", "status": "超预算（主流版本）", "version": "Lite/Standard/Pro，75%铝合金三模", "fit": "中", "call": "简配卡线但主流版本超预算；若有¥400内简配且接受品控风险再考虑", "source": "天猫WOB旗舰店；什么值得买双11铝键盘清单", "reason": "评论2好评2差评3中立，V1轴座、品控和售后争议明显。"}, {"brand": "NuPhy", "series": "Node75", "price": "¥369–488（京东约¥369，常卖¥399；天猫约¥488）", "status": "预算内（京东价）", "version": "低轴84键/高轴82键，三模热插拔", "fit": "价格高 / 口碑低", "call": "价格符合但暂不推荐；先解决品控差评疑虑", "source": "京东NuPhy旗舰店 Node75商品页", "reason": "品牌评论1好评4差评1中立；Node75零显式评价，不能因价格合适忽略品控信号。"}, {"brand": "佳达隆", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定整机型号", "fit": "未知", "call": "不纳入整机候选", "source": "—", "reason": "评论主要是轴体/卫星轴讨论，不是整机。"}, {"brand": "LEOBOG", "series": "hi75", "price": "¥118–279（Hi75有线¥188–219；Hi75C/Pro三模¥199–279；部分低价为套件）", "status": "预算内", "version": "75%铝壳，套件与成品混杂", "fit": "中高（价格）/未知（口碑）", "call": "低价备选；必须确认是成品且实际试打", "source": "京东LEOBOG商品页；京东75配列选购指南；什么值得买双11清单", "reason": "价格余量最大，但hi75零显式评论，原文hi8se不能当hi75证据。"}, {"brand": "维咖（weikav）", "series": "NUT87", "price": "¥549–709", "status": "超预算", "version": "TKL铝壳三模热插拔", "fit": "中（配置）/低（预算）", "call": "排除；除非预算提高约40%", "source": "中关村在线维咖键盘排行榜", "reason": "评论层NUT87零显式命中，无法用品牌2条好评替代。"}, {"brand": "维咖（weikav）", "series": "NUT108", "price": "¥579–749（套件约¥579–589；成品¥679–749）", "status": "超预算", "version": "108键铝壳三模；成品不可热插拔", "fit": "低", "call": "排除；且成品不可换轴", "source": "京东维咖NUT108成品页；中关村在线排行榜", "reason": "评论仅1条明确好评，价格明显超预算。"}, {"brand": "达尔优", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体型号", "fit": "未知", "call": "暂不纳入", "source": "—", "reason": "仅2条品牌层中立评论。"}, {"brand": "VGN", "series": "未指定系列", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体型号", "fit": "未知", "call": "暂不纳入", "source": "—", "reason": "品牌2条好评，但没有指定型号。"}, {"brand": "洛斐", "series": "Flow2", "price": "¥877–1179（淘宝约¥877；京东自营约¥949；官方旗舰约¥1179）", "status": "超预算", "version": "68/84/100键矮轴铝合金三模", "fit": "低（预算）/中（打字）", "call": "排除；超预算超过一倍且评论有误触负面", "source": "京东洛斐Flow2商品页；Lofree海外价目参考", "reason": "系列评论0好评1差评0中立。"}, {"brand": "小蜜蜂", "series": "Keychron", "price": "无法按型号核价", "status": "无法按型号核价", "version": "清单未指定具体Keychron型号", "fit": "未知", "call": "暂不纳入", "source": "—", "reason": "按用户映射对应品牌，但Keychron不同型号价差很大，不能泛指。"}, {"brand": "塔塔次方", "series": "evo75", "price": "¥720–819（京东约¥819，活动/8.8折约¥720.72）", "status": "超预算", "version": "75% 80键铝合金三模", "fit": "中", "call": "排除；评论虽转好但价格超预算近一倍", "source": "天猫塔塔次方EVO75商品页；京东EVO75商品页；什么值得买双11清单", "reason": "新口径系列2好评0差评1中立，但价格远超预算。"}, {"brand": "塔塔次方", "series": "evo80", "price": "¥647–819（京东约¥737–819，活动低至¥647.75）", "status": "超预算", "version": "80% 88键铝合金三模", "fit": "中", "call": "排除；且有连击差评和批次风险", "source": "京东EVO80商品页；什么值得买双11清单", "reason": "系列1好评1差评0中立；价格高于预算。"}], "pending_annotations": []};
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+
 const pct = (n,t) => t ? (n/t*100).toFixed(1)+"%" : "—";
+
 const net = r => r.total ? (r.positive-r.negative)/r.total*100 : 0;
+
 const netText = r => (net(r)>0?"+":"")+net(r).toFixed(1);
+
 const seriesBrand = brand => brand.startsWith("Filco")?"Filco":brand.startsWith("Cherry")?"Cherry":brand;
+
 const stanceKey = s => s==="好评"?"positive":s==="差评"?"negative":"neutral";
+
 let brandData = [];
+
 let seriesData = [];
+
 function aggregate(){
+
   brandData = REPORT_DATA.brands.map(x=>({...x}));
+
   seriesData = REPORT_DATA.series.map((x,i)=>({...x,_order:i}));
+
   for(const a of (REPORT_DATA.annotations||[])){
+
     if(!a.brand) continue;
+
     let b=brandData.find(x=>x.name===a.brand);
+
     if(!b){b={name:a.brand,total:0,positive:0,negative:0,neutral:0,scope:"新增评论标注",coverage:"待补充",note:"来自后续增量评论。"};brandData.push(b);}
+
     const k=stanceKey(a.stance);b[k]++;b.total++;
+
     if(a.series){
+
       const sb=seriesBrand(a.brand);
+
       let s=seriesData.find(x=>x.brand===sb&&x.name===a.series);
+
       if(!s){s={brand:sb,name:a.series,total:0,positive:0,negative:0,neutral:0,confidence:"待积累",note:"来自后续增量评论。",missing:"型号覆盖与长期证据仍待补充。",_order:seriesData.length};seriesData.push(s);}
+
       s[k]++;s.total++;
+
     }
+
   }
+
 }
+
 function renderMeta(){
+
   const m=REPORT_DATA.meta;
+
   document.getElementById("budgetTag").textContent="预算："+m.budget;
+
   document.getElementById("usageTag").textContent="用途："+m.usage;
+
   document.getElementById("snapshot").textContent="数据快照："+m.snapshot+" ｜ 基线重复ID："+m.duplicate_ids+" ｜ 报告刷新："+(m.last_render||m.generated_at);
+
   const metrics=[[m.comments_total,"评论记录（272主评 / 293回复）"],[m.usable_text,"有可用文本（含非产品讨论）"],[brandData.length,"当前品牌 / 实体统计"],[seriesData.length,"可识别系列 / 型号组"],[m.pending_review||0,"新增评价待人工复核"]];
+
   document.getElementById("metrics").innerHTML=metrics.map(x=>`<div class="metric"><div class="num">${esc(x[0])}</div><div class="label">${esc(x[1])}</div></div>`).join("");
+
   const ok=!!m.state_initialized;
+
   document.getElementById("statusDot").className="status-dot"+(ok?" ok":"");
+
   document.getElementById("stateStatus").textContent=ok?`增量状态已初始化：已登记 ${m.known_comment_ids} 个评论ID；计入新增实体评价 ${m.accepted_new_annotations} 条。`:"尚未初始化增量状态：首次运行 --init 后即可按评论ID去重更新。";
+
   document.getElementById("footerMeta").textContent=`数据版本 ${m.version} ｜ 基线 ${m.comments_total} 条 ｜ 新增已计入 ${m.accepted_new_annotations||0} 条实体评价 ｜ 待复核 ${m.pending_review||0} 条 ｜ 生成 ${m.last_render||m.generated_at}`;
+
 }
+
 function renderDecision(){
+
   const r=REPORT_DATA.recommendations[0];
+
   document.getElementById("verdict").innerHTML=`<div class="verdict card"><div class="verdict-main"><div class="rank-label">TOP PICK / 首选试用</div><h3>${esc(r.candidate)}</h3><div class="muted">${esc(r.version)}</div><p>${esc(r.evidence)}</p><div class="button-row"><span class="chip">需求匹配 ${esc(r.fit)}</span><span class="chip amber">${esc(r.status)}</span><span class="chip gray">先核实现价与版本</span></div></div><div class="verdict-side"><strong>为什么不是只看评论净分？</strong><p class="small muted">ROG魔导士、塔塔次方EVO、维咖NUT等都有产品力线索，但主流售价明显高于300–400元；NuPhy Node75虽在预算内，评论品控风险却高。迈从K99在“评论口碑 + 当前券后价 + 码字 + 半年使用反馈”之间最均衡。</p><strong>主要风险</strong><p class="small muted">${esc(r.risk)}</p></div></div>`;
+
   document.getElementById("candidates").innerHTML=REPORT_DATA.recommendations.map(x=>`<div class="candidate card"><div class="rank">0${x.rank}</div><div><h3>${esc(x.candidate)}</h3><div class="version">${esc(x.version)}</div><span class="chip ${x.status.includes("超预算")?"red":x.status.includes("临界")?"amber":""}">${esc(x.status)}</span></div><div><p><strong>证据：</strong>${esc(x.evidence)}</p><p style="margin-top:7px"><strong>需求匹配：</strong>${esc(x.fit)}</p></div><div><p><strong>风险：</strong>${esc(x.risk)}</p><p style="margin-top:7px"><strong>行动：</strong>${esc(x.action)}</p></div></div>`).join("");
+
   if(REPORT_DATA.original_post){const op=REPORT_DATA.original_post;document.getElementById("originalPostCard").innerHTML=`<div class="kicker">ORIGINAL POST / 已交叉核验</div><h3 style="margin-bottom:8px">${esc(op.title)} <a href="${esc(REPORT_DATA.meta.source_url)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--teal);text-decoration:none;margin-left:10px">打开原帖 ↗</a></h3><p class="small muted">${esc(op.summary)}</p><div class="button-row">${op.mentioned_candidates.map(x=>`<span class="chip gray">${esc(x)}：楼主询问，非推荐</span>`).join("")}</div><p class="small" style="margin-bottom:0;color:var(--amber)"><strong>统计处理：</strong>${esc(op.coding_note)}</p>`;}
+
   document.getElementById("avoidList").innerHTML=REPORT_DATA.avoid.map(x=>`<div class="risk-item"><strong>${esc(x.name)}</strong><span>${esc(x.reason)}</span></div>`).join("");
+
 }
+
 function renderPrice(){
+
   const rows=REPORT_DATA.pricing||[];const pm=REPORT_DATA.price_methodology||{};
+
   document.getElementById("priceMethod").textContent=`核验日期：${pm.as_of||"—"} ｜ 口径：${pm.market||"—"} ｜ 预算：${pm.budget_band||"—"}。`;
+
   document.getElementById("priceCaveat").textContent=pm.caveat||"";
+
   const cls=s=>s.includes("超预算")?"red":s.includes("临界")?"amber":s.includes("无法")?"gray":"";
+
   document.getElementById("priceRows").innerHTML=rows.map(x=>`<tr><td><strong>${esc(x.brand)}</strong></td><td>${esc(x.series)}</td><td class="nowrap"><strong>${esc(x.price)}</strong></td><td><span class="chip ${cls(x.status)}">${esc(x.status)}</span></td><td><div class="small">${esc(x.version)}</div><div class="small muted">需求匹配：${esc(x.fit)}</div></td><td><div><strong>${esc(x.call)}</strong></div><div class="cell-note">${esc(x.reason)}</div><div class="small muted">来源：${esc(x.source)}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">暂无价格数据</td></tr>`;
+
 }
+
 function renderMapping(){
+
   const rows=REPORT_DATA.authoritative_mapping||[];
+
   const fmt=c=>c&&c.reduce((a,b)=>a+b,0)?`${c[0]} / ${c[1]} / ${c[2]} <span class="muted">（共${c[0]+c[1]+c[2]}）</span>`:'<span class="muted">0 / 0 / 0（无显式评论）</span>';
+
   document.getElementById("mappingRows").innerHTML=rows.map(x=>`<tr><td><strong>${esc(x.brand)}</strong></td><td>${esc(x.series)}</td><td class="cell-note">${esc((x.aliases||[]).join("、"))}</td><td class="numcell">${fmt(x.brand_counts)}</td><td class="numcell">${x.series_counts?fmt(x.series_counts):'<span class="muted">品牌层，不设系列</span>'}</td><td><span class="chip ${x.status.includes('零')?'amber':x.status.includes('未指定')?'gray':''}">${esc(x.status)}</span><div class="cell-note">${esc(x.note)}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">暂无权威映射数据</td></tr>`;
+
 }
+
 function renderBrandChart(){
+
   const rows=brandData.filter(x=>x.total>=5).sort((a,b)=>net(b)-net(a));
+
   document.getElementById("brandChart").innerHTML=rows.map(r=>`<div class="chart-row" title="${esc(r.name)}：${r.positive}好评 / ${r.negative}差评 / ${r.neutral}中立"><div class="chart-name">${esc(r.name)}</div><div class="stack"><span class="pos" style="width:${r.positive/r.total*100}%"></span><span class="neg" style="width:${r.negative/r.total*100}%"></span><span class="neu" style="width:${r.neutral/r.total*100}%"></span></div><div class="net-value ${net(r)<0?"negative":""}" style="color:${net(r)<0?"var(--red)":"var(--teal)"}">${netText(r)}</div></div>`).join("");
+
 }
+
 function renderBrands(){
+
   const q=normalizeText(document.getElementById("brandSearch").value);
+
   const min=Number(document.getElementById("brandMin").value);
+
   const sort=document.getElementById("brandSort").value;
+
   let rows=brandData.filter(r=>r.total>=min&&(!q||normalizeText([r.name,r.scope,r.coverage,r.note].join(" ")).includes(q)));
+
   rows.sort((a,b)=>sort==="net"?net(b)-net(a)||b.total-a.total:b[sort]-a[sort]||net(b)-net(a));
+
   document.getElementById("brandRows").innerHTML=rows.map(r=>`<tr><td><strong>${esc(r.name)}</strong><div class="small muted">${esc(r.scope)}</div></td><td class="numcell"><strong>${r.total}</strong><div class="small muted">${r.positive} / ${r.negative} / ${r.neutral}</div></td><td class="numcell" style="color:var(--teal)">${pct(r.positive,r.total)}<div class="bar-track"><div class="bar-fill" style="width:${r.positive/r.total*100}%"></div></div></td><td class="numcell" style="color:var(--red)">${pct(r.negative,r.total)}<div class="bar-track"><div class="bar-fill negative" style="width:${r.negative/r.total*100}%"></div></div></td><td class="numcell" style="color:var(--amber)">${pct(r.neutral,r.total)}</td><td class="numcell sentiment ${net(r)<0?"negative":"positive"}">${netText(r)}</td><td><div class="coverage"><strong>覆盖：</strong>${esc(r.coverage)}</div><div class="cell-note">${esc(r.note)}</div></td></tr>`).join("")||`<tr><td colspan="7" class="empty">没有符合条件的品牌</td></tr>`;
+
   document.getElementById("brandCount").textContent=`显示 ${rows.length} / ${brandData.length} 个品牌。表内“好 / 差 / 中”为计数，大列百分比为各维度占比。`;
+
 }
+
 function renderSeries(){
+
   const q=normalizeText(document.getElementById("seriesSearch").value);
+
   const sort=document.getElementById("seriesSort").value;
+
   let rows=seriesData.filter(r=>!q||normalizeText([r.brand,r.name,r.note,r.missing].join(" ")).includes(q));
+
   rows.sort((a,b)=>sort==="net"?net(b)-net(a)||b.total-a.total:sort==="total"?b.total-a.total||net(b)-net(a):a._order-b._order);
+
   document.getElementById("seriesRows").innerHTML=rows.map(r=>`<tr><td><strong>${esc(r.brand)}</strong></td><td>${esc(r.name)}</td><td class="numcell">${r.total}</td><td class="numcell"><span style="color:var(--teal)">${r.positive}</span> / <span style="color:var(--red)">${r.negative}</span> / <span style="color:var(--amber)">${r.neutral}</span></td><td class="numcell sentiment ${net(r)<0?"negative":"positive"}">${netText(r)}</td><td><span class="chip ${r.total<5?"amber":"gray"}">${esc(r.confidence)}</span></td><td><div class="cell-note"><strong style="color:var(--ink)">评价：</strong>${esc(r.note)}<br><strong style="color:var(--amber)">缺失：</strong>${esc(r.missing)}</div></td></tr>`).join("")||`<tr><td colspan="7" class="empty">没有符合条件的系列</td></tr>`;
+
   document.getElementById("seriesCount").textContent=`显示 ${rows.length} / ${seriesData.length} 个系列或型号组。净分100但评论数1的条目仍需视为证据不足。`;
+
 }
+
 function renderArguments(){
+
   document.getElementById("argumentList").innerHTML=REPORT_DATA.arguments.map(x=>`<article class="argument card"><h3>${esc(x.title)}</h3><div class="stance-grid"><div class="stance-box"><strong>一方 / 正面主张</strong>${esc(x.pro)}</div><div class="stance-box"><strong>另一方 / 反向主张</strong>${esc(x.con)}</div><div class="stance-box"><strong>中间立场</strong>${esc(x.middle)}</div></div><p class="coding"><strong>编码处理：</strong>${esc(x.coding)}</p></article>`).join("");
+
 }
+
 function renderEvidence(){
+
   const q=normalizeText(document.getElementById("evidenceSearch").value);
+
   const stance=document.getElementById("evidenceStance").value;
+
   const rows=REPORT_DATA.evidence.filter(x=>(!stance||x.stance===stance)&&(!q||normalizeText(Object.values(x).join(" ")).includes(q)));
+
   document.getElementById("evidenceGrid").innerHTML=rows.map(x=>`<article class="evidence-card card" data-stance="${esc(x.stance)}"><div class="evidence-top"><span class="chip ${x.stance==="差评"?"red":x.stance==="好评"?"":"amber"}">${esc(x.stance)}</span><strong>${esc(x.brand)}</strong><span class="small muted">${esc(x.series)}</span></div><p class="evidence-quote">“${esc(x.quote)}”</p><p class="evidence-why">${esc(x.interpretation)}</p><div class="evidence-ref">CSV行 ${esc(x.line)}${x.id?` ｜ ID ${esc(x.id)}`:" ｜ ID未完整保留"}</div></article>`).join("")||`<div class="empty card">没有符合条件的证据</div>`;
+
   document.getElementById("evidenceCount").textContent=`显示 ${rows.length} / ${REPORT_DATA.evidence.length} 条代表性证据。`;
+
 }
+
 function renderLists(){
+
   document.getElementById("smallSamples").innerHTML=REPORT_DATA.small_samples.map(x=>`<li>${esc(x)}</li>`).join("");
+
   document.getElementById("missingList").innerHTML=REPORT_DATA.missing.map(x=>`<li>${esc(x)}</li>`).join("");
+
   const pending=REPORT_DATA.pending_annotations||[];
+
   document.getElementById("pendingChip").textContent=pending.length;
+
   document.getElementById("pendingRows").innerHTML=pending.slice(0,50).map(a=>`<tr class="pending-row"><td class="small">${esc(a.comment_id)}</td><td>${esc(a.brand||"未识别")}<div class="small muted">${esc(a.series||"系列缺失")}</div></td><td>${esc(a.stance)}</td><td class="cell-note">${esc(a.text)}</td><td class="cell-note">${esc(a.review_reason)}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">当前没有待复核新增标注</td></tr>`;
+
 }
+
 function normalizeText(s){return String(s||"").toLowerCase().replace(/\s+/g," ");}
+
 function exportCSV(type){
+
   const rows=type==="brand"?brandData:seriesData;
+
   const headers=type==="brand"?["品牌","相关评论","好评","差评","中立模糊","好评率","差评率","中立率","净口碑分","系列覆盖","备注"]:["品牌","系列","相关评论","好评","差评","中立模糊","好评率","差评率","中立率","净口碑分","证据强度","评价","缺失"];
+
   const data=rows.map(r=>type==="brand"?[r.name,r.total,r.positive,r.negative,r.neutral,pct(r.positive,r.total),pct(r.negative,r.total),pct(r.neutral,r.total),netText(r),r.coverage,r.note]:[r.brand,r.name,r.total,r.positive,r.negative,r.neutral,pct(r.positive,r.total),pct(r.negative,r.total),pct(r.neutral,r.total),netText(r),r.confidence,r.note,r.missing]);
+
   const csv="\ufeff"+[headers,...data].map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=type==="brand"?"品牌口碑汇总.csv":"系列口碑汇总.csv";a.click();URL.revokeObjectURL(url);
+
 }
+
 aggregate();renderMeta();renderDecision();renderPrice();renderMapping();renderBrandChart();renderBrands();renderSeries();renderArguments();renderEvidence();renderLists();
+
 ["brandSearch","brandMin","brandSort"].forEach(id=>document.getElementById(id).addEventListener("input",renderBrands));
+
 ["seriesSearch","seriesSort"].forEach(id=>document.getElementById(id).addEventListener("input",renderSeries));
+
 ["evidenceSearch","evidenceStance"].forEach(id=>document.getElementById(id).addEventListener("input",renderEvidence));
+
 const progressEl=document.getElementById("progress");
+
 const toTopEl=document.getElementById("toTop");
+
 function onScroll(){
+
   const h=document.documentElement;
+
   const max=h.scrollHeight-h.clientHeight;
+
   progressEl.style.width=(max>0?(h.scrollTop/max*100):0)+"%";
+
   toTopEl.classList.toggle("show",h.scrollTop>560);
+
 }
+
 window.addEventListener("scroll",onScroll,{passive:true});
+
 toTopEl.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-document.querySelectorAll(".nav a, .hero-actions a").forEach(a=>{
-  a.addEventListener("click",()=>{
-    const t=document.querySelector(a.getAttribute("href"));
-    if(t&&t.tagName==="DETAILS") t.open=true;
-  });
-});
-document.getElementById("brandSummaryHint").textContent=brandData.filter(x=>x.total>=5).length+" 个主要品牌";
+
 onScroll();
+
 </script>
+
+<button class="to-top" id="toTop" aria-label="返回顶部" title="返回顶部">↑</button>
+
 </body>
+
 </html>
+
